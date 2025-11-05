@@ -1,0 +1,11 @@
+{
+	"/revauth":true,
+	"/revision/point":true,
+	"/revision":true,
+	"/revision/productunits":true,
+	"/revision/unitsbybarcode":true,
+	"/revision/revisionusers":true,
+	"/revision/coldrevproducts":true,
+	"/products/bypoint":true,
+	"/erpuser/info":true
+}

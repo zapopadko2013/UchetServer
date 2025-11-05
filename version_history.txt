@@ -1,0 +1,216 @@
+1.0.7. - changed path of public and esfcerts folders to ./public and /mnt/esfcerts
+Fixed "routes/api/graph.js" file and created "version_history.txt" file (1.0.5)
+Moved report "grossprofit" to a separate file
+1.0.8. - изменил в файле esf.js на боевой ip и константу generateSignature изменил.
+1.0.8.test - Fixed "api/products.js" (router.get("/getProductByBarcode"))
+1.0.9. - Fixed "api/products.js" (router.get("/getProductByBarcode"))
+1.0.9.test - Added fields (wholesale_price, unitspr) to "api/invoice.js"
+1.0.10. - Fixed "api/products.js" ("/stockcurrent/stock limit(2) -> limit(30)")
+1.0.10.test - Added fields (wholesale_price, unitspr) to "api/invoice.js"
+1.0.11. - change products.code 'ILIKE' comparison to '=' comparision if products.js, revision.js and newrevision.js
+1.0.11.test - Added field (updateallprodprice) to "api/invoice.js"
+1.1.11.test - Added service (margin_plan) to "api/categories.js"
+1.0.12. - вместо like для поля code поставлено =
+1.1.12.test - Fixed "api/invoice/product1.js"
+1.0.13 - routes/api/report/history.js rename /invoices1 to /invoicesnoformation
+1.1.13.test - Fixed "api/categories.js"
+1.0.14  - Fixed "api/products.js (getProductByBarcode)" 
+1.1.14.test - Fixed "api/invoice.js (product/details, product1)"
+1.0.15 - Fixed "api/report/fizcustomers (/)"
+1.1.15.test  - изменил в файле "api/invoice.js (product1)"
+1.0.16 - Fixed "api/report/fizcustomers (/)" again
+1.1.16.test - Для поля code таблицы products вместо like будем использовать =
+1.0.17 - Fixed "api/report/stockbalance (/excel)" 
+1.1.17.test  - Added folder "public" with files
+1.0.18 - Fixed "api/report/fizcustomers (/)" (bonuses field)
+
+1.1.18.test  - Fixed "api/products.js (getProductByBarcode)"
+1.2.18.test  - Added service "invoice" to "api/nomenclature" 
+1.2.19.test - Fixed "api/report/fizcustomers.js (/)"
+1.2.20.test  - Fixed "api/report/stockbalance.js (/excel)"
+1.2.21.test  - Добавлен партнёр в административную страницу
+1.2.21.test.2  - Fixed service "invoice" to "api/nomenclature"
+1.2.22.test  - Fixed service "invoice" to "api/nomenclature"
+1.2.23.test  - Fixed service "invoice" to "api/nomenclature" (added category and brand)
+1.2.24.test  - Fixed service "invoice" in "api/nomenclature" (added attributes)
+1.2.25.test  - Fixed service "invoice" in "api/nomenclature" (added total count, search by barcode, name)
+1.2.26.test  - Fixed service "invoice" in "api/nomenclature" (fixed total count, fixed null values)
+1.2.27.test  - Fixed service "invoice" in "api/nomenclature" (fixed attributes)
+1.3.27.test  - Added services "multiple/edit","multiple/delete" in "api/nomenclature"
+1.3.28.test  - Fixed service "invoice" in "api/nomenclature" (divided to weight)
+1.3.29.test  - Fixed service "product1" in "api/invoice" (fixed attributes)
+1.3.30.test  - Fixed service "invoicenoformation" in "api/report/history" (restored invocenoformation)
+1.3.31.test  - Fixed service "invoice" in "api/nomenclature" (fixed order)
+1.3.32.test  - Fixed service "fizcustomers" in "api/report" (fixed bonuses in "currbonuses" field)
+1.3.33 - fixed bug in nomenclature.js when sub-query returned several rows of attrs when there are several products with same barcode
+1.3.34 - changes in routes/api/report/movement.js to reflect new reasontypes in database
+1.3.32.2 - For checking
+1.3.33 -Добавлено в функцию invoice/functioncall параметр компании
+1.3.34   - Удалено не нужное логирование
+1.3.35 - fixed bug in nomenclature.js when sub-query returned several rows of attrs when there are several products with same barcode
+1.3.36 - changes in routes/api/report/movement.js to reflect new reasontypes in database
+1.3.37 - Добавлены дополнительные столбцы в функцию api/invoice/product1 для атрибутов из таблицы продуктов
+1.3.38 - Добавлены дополнительные столбцы в функцию /api/invoice/product/details для атрибутов из таблицы продуктов
+1.3.39 - Изменена формат даты для тестового сервера в функции /api/customers/getinvoices 
+1.3.40 - Логирование в функции /api/customers/transferconsignment
+1.3.41 - Убрал логирование в функции /api/customers/transferconsignment 
+1.3.42 - Добавил функцию /api/report/expire_date/repexpdate
+1.3.42.test - Изменение в функции /api/invoice/product/details 
+1.3.43 - Fixed service "api/report/stockbalance" (fixed "like =")
+1.3.44.test - Изменение в функции /api/report/fizcustomers.js 
+1.3.45.test - Изменение в функции /api/report/movement.js 
+1.3.46.test - Изменение в функции /api/report/movement.js
+1.3.47.test - Изменение в функции /api/invoice/product/details
+1.3.48.test - Изменение в функции /api/report/stockbalance/simple
+1.3.49 - Fixed service "products/getProductByBarcode" (added attributes and details)
+1.3.52.test - Изменение в функции /api/report/stockbalance/simple
+1.3.53 - Fixed service "api/report/grossprofit" (gross_profit != 0)
+1.3.54.test - Изменение в функции /api/invoice/product/details
+1.3.55.test - Изменение в функции /api/nomenclature
+1.3.44.test - Изменение функции /api/invoice/product/details
+1.3.46.test - Изменение функции /api/products/getProductByBarcode
+1.3.51.test - Изменение функции /api/report/fizcustomers.js
+1.3.52.test - Fixed "invoice" (product1, product/details)
+1.3.53.test - Fixed "api/invoice/product/details"
+1.3.54.test - Изменение функции /api/report/movement.js
+1.3.55.test - Изменение функции /api/report/movement.js
+1.3.56.test - Изменение функции /api/invoice/product/details
+1.3.72.test - Изменение функции /api/nomenclature/invoice и добавление /api/nomenclature/stockminmax
+1.3.78.test - Изменение функции /api/report/stockbalance/simple
+1.3.87.test - Добавление функции /api/nomenclature/stockminmax/product
+1.3.89.test - Изменение функции /api/report/stockbalance/simple
+1.3.90.test - Fixed "api/report/grossprofit.js" (gross_profit != 0)
+1.3.92.test - Изменение функции /api/invoice/product/details
+1.3.93.test - Изменение функции /api/nomenclature/stockminmax/product
+1.3.94.test - ab add /api/categories/getcategoriesbonusrate function
+1.3.95.test - ab add /api/categories/get_categories_bonusrate function
+1.3.96.test - AB - add /api/products/bonusrateconflict function
+1.3.97.test - 20230817 by AB add products.piece, products.pieceinpack to report (download to later enable upload to transfer all product info )
+1.3.98.test - 20230821 by AB add product.untisprid to stockbalance report 
+1.3.99.test - Добавление фильтра по удалённым записям
+1.3.100.test - 20230822 quickfix in stockbalance.js line 426 change bs.unitsprid to unitsprid
+1.3.103.test - Изменение фильтра по удалённым записям
+1.3.104.test - 20230824 by AB add storeprices.pieceprice to stockbalance.js
+1.3.124.test - Добавление дополнительного столбца цена закупа и изменение себестоимости в расширенном отчёте
+1.3.125.test - Добавление изменения бин
+1.3.127.test - Изменения чтобы для администратора нашей компании выводил все компании
+1.3.128.test - Исправление ошибки цены закупа в расширенном отчёте
+1.3.129.test - Изменение фильтрации по упрощенному отчету
+1.3.130.test - replace /mnt/public to ./public
+1.3.130.signin+rebbitmq - changes to package-lock.json, package.json, routes/api/adminpage.js, routes/api/company.js, routes/api/erpuser.js to incorporate changes for separate signin + rabbitmq integration
+1.3.134.test - Изменение по параметрам партнеров в /external/api/point 
+1.3.137.test - Изменение в отчёте по общим продажам в /api/report/sales/cashboxuser 
+1.3.138.test -Изменение в отчёте по проданным товарам
+1.3.141.test -Изменение по валюте
+1.3.144.test -Изменение в отчёте по проданным товарам расширенном
+1.3.145.test -Изменение в функции routes/api/invoice/functioncall
+1.3.150.test -Изменение в функции регистрации компании
+1.3.152.test -Добавление фильтра по фамилии в запрос /api/report/fizcustomers
+1.3.153.test -Изменение в запросе /external/api/customers/getfizinfobylastname
+1.3.154.test - merge with 1.3.130.signin+rabbitmq
+1.3.155.test - Исправление ошибки цены закупа в расширенном отчёте
+2.3.155.test - 20231102 AB обновил версию до 2 в связи с интеграцией rabbitmq и новым логин-сервисом
+1.3.156.test - Исправление ошибки цены закупа в расширенном отчёте
+2.3.156.test - 20231102 AB обновил версию до 2 в связи с интеграцией rabbitmq и новым логин-сервисом + Исправление ошибки цены закупа в расширенном отчёте
+2.3.157.test - 20231103 AB rewrite of erpuser.js /info to extract erpuser info from JWT since new login service provides it in JWT
+2.3.158.test - 20231103 AB fix in verifyToken.js + add import verifyToken in erpuser.js
+2.3.159.test - 20231106 AB erpuser.js getuseraccess changes, now extracts all access info from JWT
+2.3.160.test - 20231107 AB company.js / changes, now extracts all company info from JWT
+2.3.161.test - 20231109 AB erpuser.js adding new erp users through rabbitmq
+2.3.162.test - 20231109 AB erpuser.js toggle erpuser status (ACTIVE / DISMISS) through rabbitmq
+2.3.163.test - 20231111 AB company.js fix now returns all data as expected by front
+2.3.164.test - 20231111 AB remove all rabbitmq / amqp code, since now moving to new rabbit-subscriber microservice
+2.3.165.test - 20231117 AB fix erpuser /info partner_id now unencrypted
+2.3.166.test - 20231118 AB quickfix products.js /change_bonusrate add allprod option
+2.3.167.test - 20231118 AB quickfix products.js /change_bonusrate add allprod option: fix query error
+2.3.168.test - 20231125 AB fix knex.js knexfile.js and .env to reflect correct dev, test and prod env
+2.3.169.test - 20231125 AB remove knexfile.js from .gitignore
+2.3.170.test - 20231126 AB verifyToken.js now decrypts all fields of JWT and correctly handles string to boolean
+2.3.171.test - 20231127 AB LOG_LEVEL in .env and better logging in company.js and _helpers.js
+2.3.172.test - 20231127 AB erpuser.js and company.js no second decryption of JWT (already decrypted in verifyToken.js)
+2.3.173.test - 20231127 AB more erpuser.js and verifyToken.js fixes
+2.3.173.4.test - 20231128 AB more erpuser.js and verifyToken.js fixes
+2.3.174.test - 20231129 AB verifyToken.js now returns company_certificatedate as Date
+2.3.175.test - 20231211 AB merge with master_new
+
+
+1.3.56 - fix movement.js (again) only include reasons in the interval from -99 to 99
+1.3.57 - merge master2 and test
+1.4.57 20230817 by AB add products.piece and products.pieceinpack to report (download to later enable upload to transfer all product info ) <
+1.4.58 20230821 by AB add products.unitsprid to stockbalance report
+1.4.59 20230822 by AB quickfix in stockbalance.js line 426 change bs.unitsprid to unitsprid
+1.4.60 20230824 by AB add storeprices.pieceprice to stockbalance.js
+1.4.61 - Добавление дополнительного столбца цена закупа и изменение себестоимости в расширенном отчёте
+1.4.62 - Добавление функции изменения бин /api/company/managebin
+1.4.63 -  Изменения чтобы для администратора нашей компании выводил все компании
+1.4.64 -  Исправление ошибки цены закупа в расширенном отчёте
+1.4.65 -  Изменение фильтрации по упрощенному отчету
+1.4.66 - AB replace /mnt/public to ./public
+1.4.71 -  Изменение по параметрам партнеров в /external/api/point
+1.4.74 -  Изменение в отчёте по общим продажам в /api/report/sales/cashboxuser
+1.4.75 -  Изменение в отчёте по остататком на складе упрощенному отчету
+1.4.76 -  Изменение в отчёте по проданным товарам
+1.4.78 -  Изменение в отчёте по проданным товарам расширенном
+1.4.79 -  Изменение в функции routes/api/invoice/functioncall
+1.4.83 -  Изменение по валюте
+1.4.84 - Добавление фильтра по фамилии в запрос /api/report/fizcustomers
+1.4.85 - Изменение в запросе /external/api/customers/getfizinfobylastname
+1.4.87 - Исправление ошибки цены закупа в расширенном отчёте
+1.4.88 - 20231110 AB merge with 20231118_quickfix_bonusrate_allprod (AB quickfix products.js /change_bonusrate add allprod option: fix query error)
+1.4.90 - Добавление функций по киргизскому офд в /external
+2.3.175.1.prod - 20231212 AB quickfix add user.id to /api/erpuser/info
+2.3.176.prod - 20231215 AB fix _helpers.js newPointPassword and auth.js pos_signin: wrong date in cashbox integration tokens and mistake in cashbox check pass logic (always overdue pass then never checked and always issued new pass)
+2.3.176.1.prod - 20231216 AB fix auth.js pos_signin: check old integration pass sanity before reissuing new
+2.3.176.2.prod - 20231216 AB fix auth.js pos_signin: introduce featureFlag on check of old integration pass
+2.3.176.3.prod - 20231216 AB various debug fixes
+2.3.176.4.prod - 20231223_AB_fix_reports_revision_js_detailsexcel
+2.3.176.5.prod - 20231223_AB_fix other reports remove helpers.decrypt locales
+2.3.176.6.prod - 20240114 AB add user.role to verifyToken.js
+2.3.176.7.prod - Изменение в отчёте по сменам.
+2.3.176.8.prod - Изменение в отчёте по сменам.
+2.3.176.9.prod - 20240117 AB rounding of bonuses in fizcustomer report
+2.3.176.10.prod - Создание отчёта общие продажи по дням
+2.3.176.14.prod - Изменение в отчёте /api/report/transactions/fulldetails отображение юридических, физических лиц. Добавление маршрута /api/customers/getfizinfobyid для физ. лиц.
+2.3.176.16.prod - Изменение в отчёте /api/report/transactions добавление фильтра по бонусам
+
+
+2.3.176.11.dev - 20240128 AB rewrite of discount /add in nodejs instead of DB function
+2.3.176.11.prod - 20240128 AB rewrite of discount /add in nodejs instead of DB function (merge 2_TEST branch)
+2.3.176.12.fix - 20240129 AB fix remove gift certificates from sales.js simple report
+2.3.176.12.prod - 20240129 AB fix remove gift certificates from sales.js simple report (merge fix branch)
+2.3.176.13.fix - 20240129 AB fix remove gift certificates from other reports in sales.js and grossprofit.js
+2.3.176.15.fix - 20240130 AB fix adding point from admin interface (/api/companysettings/storepoint)
+2.3.176.16.fix - 20240130 AB fix adding point from admin interface (/api/companysettings/storepoint) + name uniqueness check fixed
+2.3.177.fix - 20240131 AB unify all creation of points in helpers.js createPoint
+2.3.178.fix - Изменение в отчёте расширенном по остаткам stockbalance.js 
+2.3.178.1.fix - 20240203 AB revert changes in discount.js /add pending fixes 
+2.3.179.fix - 20240203 AB fix discount.js
+2.3.179.1.fix - 20240204 AB fix discount.js discount type 1
+2.3.179.2.fix - 20240205 AB fix helpers.js createPoint point names in parenthesis
+2.3.179.5.fix - Изменение по купонам в /external/api/coupon/info
+
+
+2.3.176.17.prod - 20240217 AB graph.js dashboard graphs now include current date
+
+
+2.3.180.prod - 20240219 AB fix /routes/api/report/cashbox.js operdate_last, operdate_last_open (apply old Madiyar's code)
+2.3.180.1.prod - 20240219 AB fix dashboard current day reports in graph.js
+2.3.180.2.prod - Изменение в в запросе начисления бонусов для всех товаров /api/products 
+2.4.180.2.prod - 20240306 AB add external.js /api/customers/writeoff_debt_company
+2.4.180.3.test - fix branch 20240313 AB external.js and buyers.js changes in relation to new customers multitoggle and deletion of fiz_customers
+2.4.180.4.test - fix branch 20240313 AB buyers.js /manage now also creates new customers
+2.4.180.5.test - fix branch 20240313 AB buyers.js /fizcustomers/manage now also creates new fizcustomers
+2.5.180.6.test - fix branch 20240313 AB add debtors_tel_idx constraint to _helpers.js diagDbError
+2.5.180.7.test - fix branch 20240313 AB fix buyers.js /fizcustomers/manage typo (fistname instead of firstname)
+2.5.180.8.test - fix branch 20240315 AB fix companysettings storepoint deactivate / activate forget to do so in pointset stock
+
+
+2.5.181.feat - 20240322 AB move /writeoff_debt in routes/api/customer.js, now api/report/fizcustomers.js /writeoff_debt refers there
+2.5.182.prod - 20240322 AB now api/external/api/customers/writeoff_debt refers to /writeoff_debt in routes/api/customer.js
+2.5.182.1.prod - 20240322 AB now routes/api/report/fizcustomers.js add JSON.stringify(req.originalUrl) + JSON.stringify(req.body) to logging
+2.5.182.2.prod - 20240327 AB products.js fix brands copy now returns brand from brands_copy in /getProductByBarcode
+2.5.182.3.test - 20240328 AB products.js /getProductByBarcode no returns empty value if barcode not found (as was before 2.5.182.2.prod)
+2.5.182.6.test - Добавлено журналирование удалённых товаров /external/api/transfer/voidlines 
+2.5.182.8.prod - Добавлено журналирование удалённых товаров /external/api/transfer/voidlines 
+2.5.183.test - 20240402 AB add products.js /getProductByBarcodeLocal
+2.5.184.test - добавлена проверка на блокировки кассы в /api/cashboxesblock

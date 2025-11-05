@@ -1,0 +1,2 @@
+при появлении ошибки "local-passport/use "error parse attempts file SyntaxError: Unexpected end of JSON input""
+очистить файл "error-attempts" и поместить в него пустой JSON ({})

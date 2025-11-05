@@ -1,0 +1,976 @@
+ИП Арон - выгрузка (Thu May 19 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 652,
+  countSuccessAddedProduct: 1172,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Fri May 20 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 1824,
+  countSuccessAddedProduct: 1,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Sat May 21 2022 01:00:03 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 1825,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Sun May 22 2022 01:00:03 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 1825,
+  countSuccessAddedProduct: 2,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Mon May 23 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 1827,
+  countSuccessAddedProduct: 11,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Tue May 24 2022 01:00:03 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 1838,
+  countSuccessAddedProduct: 12,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Wed May 25 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 1851,
+  countSuccessAddedProduct: 11,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Thu May 26 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 1862,
+  countSuccessAddedProduct: 4,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Fri May 27 2022 01:00:03 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 1866,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Sat May 28 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 1866,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Sun May 29 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 1866,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Mon May 30 2022 01:00:03 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 1866,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Tue May 31 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 1866,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Wed Jun 01 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 1866,
+  countSuccessAddedProduct: 1,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Thu Jun 02 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 1867,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Fri Jun 03 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 1867,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Sat Jun 04 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 1867,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Sun Jun 05 2022 01:00:05 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 1867,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Mon Jun 06 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 1868,
+  countSuccessAddedProduct: 2,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Tue Jun 07 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 1870,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Wed Jun 08 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 1870,
+  countSuccessAddedProduct: 18,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Thu Jun 09 2022 01:00:03 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 1888,
+  countSuccessAddedProduct: 2,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Fri Jun 10 2022 01:00:03 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 1890,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Sat Jun 11 2022 01:00:03 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 1893,
+  countSuccessAddedProduct: 3,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Sun Jun 12 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 1911,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Mon Jun 13 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 1911,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Tue Jun 14 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 1911,
+  countSuccessAddedProduct: 6,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Wed Jun 15 2022 01:00:05 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 1919,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Thu Jun 16 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 1919,
+  countSuccessAddedProduct: 1,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Fri Jun 17 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 1919,
+  countSuccessAddedProduct: 6,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Sat Jun 18 2022 01:00:01 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 1923,
+  countSuccessAddedProduct: 2,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Sun Jun 19 2022 01:00:02 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 1925,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Mon Jun 20 2022 01:00:02 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 1925,
+  countSuccessAddedProduct: 40,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Tue Jun 21 2022 01:00:01 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 1965,
+  countSuccessAddedProduct: 1,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Wed Jun 22 2022 01:00:01 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 1965,
+  countSuccessAddedProduct: 1,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Thu Jun 23 2022 01:00:02 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 1966,
+  countSuccessAddedProduct: 12,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Fri Jun 24 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 1979,
+  countSuccessAddedProduct: 14,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Sat Jun 25 2022 01:00:14 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 1994,
+  countSuccessAddedProduct: 1,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Sun Jun 26 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2002,
+  countSuccessAddedProduct: 22,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Mon Jun 27 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2024,
+  countSuccessAddedProduct: 1,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Tue Jun 28 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2007,
+  countSuccessAddedProduct: 20,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Wed Jun 29 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2026,
+  countSuccessAddedProduct: 1,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Thu Jun 30 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2027,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Fri Jul 01 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2027,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Sat Jul 02 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2027,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Sun Jul 03 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2027,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Mon Jul 04 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2027,
+  countSuccessAddedProduct: 3,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Tue Jul 05 2022 01:00:03 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2030,
+  countSuccessAddedProduct: 2,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Wed Jul 06 2022 01:00:03 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2033,
+  countSuccessAddedProduct: 1,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Thu Jul 07 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2034,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Fri Jul 08 2022 01:00:03 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2034,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Sat Jul 09 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2034,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Sun Jul 10 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2034,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Mon Jul 11 2022 01:00:03 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2034,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Tue Jul 12 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2034,
+  countSuccessAddedProduct: 4,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Wed Jul 13 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2038,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Thu Jul 14 2022 01:00:03 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2040,
+  countSuccessAddedProduct: 3,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Fri Jul 15 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2043,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Sat Jul 16 2022 01:00:01 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+ИП Арон - выгрузка (Sun Jul 17 2022 01:00:03 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+ИП Арон - выгрузка (Mon Jul 18 2022 01:00:03 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+ИП Арон - выгрузка (Tue Jul 19 2022 01:00:02 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+ИП Арон - выгрузка (Wed Jul 20 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2045,
+  countSuccessAddedProduct: 76,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Thu Jul 21 2022 01:00:03 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2122,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Fri Jul 22 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2122,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Sat Jul 23 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2118,
+  countSuccessAddedProduct: 4,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Sun Jul 24 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2122,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Mon Jul 25 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2122,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Tue Jul 26 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2122,
+  countSuccessAddedProduct: 14,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Fri Aug 12 2022 11:14:11 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2141,
+  countSuccessAddedProduct: 92,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Sat Aug 13 2022 01:00:05 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2233,
+  countSuccessAddedProduct: 1,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Sun Aug 14 2022 01:00:05 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2234,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Mon Aug 15 2022 01:00:05 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2234,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Tue Aug 16 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2234,
+  countSuccessAddedProduct: 6,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Wed Aug 17 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2240,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Thu Aug 18 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2240,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Fri Aug 19 2022 01:00:05 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2240,
+  countSuccessAddedProduct: 13,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Sat Aug 20 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2253,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Sun Aug 21 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2253,
+  countSuccessAddedProduct: 59,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Mon Aug 22 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2311,
+  countSuccessAddedProduct: 1,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Tue Aug 23 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2312,
+  countSuccessAddedProduct: 18,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Wed Aug 24 2022 01:00:05 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2330,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Thu Aug 25 2022 01:00:05 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2330,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Fri Aug 26 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2330,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Sat Aug 27 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2330,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Sun Aug 28 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2330,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Mon Aug 29 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2330,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Tue Aug 30 2022 01:00:05 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2330,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Wed Aug 31 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2330,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Thu Sep 01 2022 01:00:05 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2330,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Fri Sep 02 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2330,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Sat Sep 03 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2330,
+  countSuccessAddedProduct: 30,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Sun Sep 04 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2360,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Mon Sep 05 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2360,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Tue Sep 06 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2360,
+  countSuccessAddedProduct: 1,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Wed Sep 07 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2361,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Thu Sep 08 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2361,
+  countSuccessAddedProduct: 8,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Fri Sep 09 2022 01:00:05 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2369,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Sat Sep 10 2022 01:00:05 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2369,
+  countSuccessAddedProduct: 3,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Sun Sep 11 2022 01:00:05 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2372,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Mon Sep 12 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2372,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Tue Sep 13 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2372,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Wed Sep 14 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2372,
+  countSuccessAddedProduct: 2,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Thu Sep 15 2022 01:00:05 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2374,
+  countSuccessAddedProduct: 1,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Fri Sep 16 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2377,
+  countSuccessAddedProduct: 18,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Sat Sep 17 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2395,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Sun Sep 18 2022 01:00:03 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2395,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Mon Sep 19 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2395,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Tue Sep 20 2022 01:00:03 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2395,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Wed Sep 21 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2395,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Thu Sep 22 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2395,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Fri Sep 23 2022 01:00:05 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2395,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Sat Sep 24 2022 01:00:05 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2395,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Sun Sep 25 2022 01:00:05 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2395,
+  countSuccessAddedProduct: 4,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Mon Sep 26 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2399,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Tue Sep 27 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2399,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Wed Sep 28 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2399,
+  countSuccessAddedProduct: 1,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Thu Sep 29 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2400,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Fri Sep 30 2022 01:00:05 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2400,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Sat Oct 01 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2400,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Sun Oct 02 2022 01:00:05 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2400,
+  countSuccessAddedProduct: 12,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Mon Oct 03 2022 01:00:05 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2412,
+  countSuccessAddedProduct: 3,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Tue Oct 04 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2416,
+  countSuccessAddedProduct: 16,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Wed Oct 05 2022 01:00:04 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2432,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
+ИП Арон - выгрузка (Thu Oct 06 2022 01:00:05 GMT+0600 (Восточный Казахстан))
+Promise { <pending> }
+[Fetch Json]: {
+  countSuccessUpdatedProduct: 2432,
+  countSuccessAddedProduct: 0,
+  result: 'success',
+  errors: []
+}
