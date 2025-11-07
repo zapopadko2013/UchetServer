@@ -80,6 +80,9 @@ router.get("/revisiontemp/list", (req, res) => {
   const all = req.query.all ? "" : `  AND rt."user" = ${req.userData.id}`
   knex.raw(`
   SELECT
+  ---06.11.2025
+  rt.id,
+  ---06.11.2025
 	rt.createdate,
 	rt.units,
 	rt.point,
@@ -231,6 +234,23 @@ router.post('/revisiontemp/update', (req, res) => {
     })
 });
 
+//06.11.2025
+router.post('/revisiontempn/edit', (req, res) => {
+  req.body.user = req.userData.id;
+  req.body.company = req.userData.company;
+  
+  knex.raw(`update revision_temp
+  set units = ?
+  where id = ?`, [req.body.units,req.body.rtId])
+    .then((result) => {
+      return res.status(200).json(result)
+    })
+    .catch((err) => {
+      return res.status(500).json(err)
+    })
+});
+//06.11.2025
+
 router.post('/revisiontemp/edit', (req, res) => {
   req.body.user = req.userData.id;
   req.body.company = req.userData.company;
@@ -258,6 +278,25 @@ router.post('/revisiontemp/delete', (req, res) => {
       return res.status(500).json(err)
     })
 });
+
+/////07.11.2025
+router.post('/revisiontemp/deleten', (req, res) => {
+  req.body.user = req.userData.id;
+  req.body.company = req.userData.company;
+  
+  console.log(req.body);
+
+  knex.raw(`delete from revision_temp
+  where product = ? and revisionnumber = ? and "user" = ? `, [req.body.product, req.body.revisionnumber, req.body.user])
+    .then((result) => {
+      return res.status(200).json(result)
+    })
+    .catch((err) => {
+      console.log(err);
+      return res.status(500).json(err)
+    })
+});
+/////07.11.2025
 
 router.post('/revisiontemp/insert', (req, res) => {
   req.body.user = req.userData.id;
@@ -1008,6 +1047,71 @@ router.get("/comparerevisiontostock", (req, res) => {
       return res.status(500).json(err);
     });
 });
+
+////07.11.2025
+
+router.get("/comparetemprevisionn", (req, res) => {
+  const point = req.query.point;
+  const company = req.userData.company;
+  const user = req.userData.id;
+  const type = req.query.type;
+
+
+  knex.raw(`select  stockcurrent.product,
+  products.name,
+  products.code,
+  stockcurrent.attributes,
+  stockcurrent.units,
+  storeprices.price as sellprice,
+  products.category,
+	products.brand,
+	rl.type,
+  round(coalesce((select coalesce(min(sp.purchaseprice),0)
+                    from stockcurrent_part as sp
+                      where sp.company = stockcurrent.company
+                        and sp.point = stockcurrent.point
+                        and sp.product = stockcurrent.product
+                        and sp.attributes = stockcurrent.attributes
+                        and sp.units > 0
+                        and sp.date = (select min(sp2.date)
+                                  from stockcurrent_part as sp2
+                                    where sp2.company = sp.company
+                                      and sp2.point = sp.point
+                                      and sp2.product = sp.product   
+                                      and sp2.attributes = sp.attributes
+                                      and sp2.units > 0)),0)::numeric,2) 
+                                      as purchaseprice,
+  array_to_string(array(
+    select n.values||': '||a.value
+    from attrlist a
+    left join attributenames n
+    on (n.id = a.attribute)
+    where a.listcode = stockcurrent.attributes),', ')
+    as attrvalue
+  from stockcurrent 
+  inner join products on products.id = stockcurrent.product
+  left join storeprices on storeprices.stock = stockcurrent.id and  storeprices.company = stockcurrent.company
+  inner join revision_list rl on rl.point = stockcurrent.point and rl.company = stockcurrent.company
+    and 
+		  case
+			  when rl.type = 2 then
+				  products.brand = rl.type_id
+			  when rl.type = 3 then
+			  	products.category = rl.type_id
+			  else
+				  true
+		  end
+  where stockcurrent.point = ${point} and products.deleted = false and stockcurrent.company = ${company} and stockcurrent.units <> 0 and rl.status = upper('active')
+  and 1=0`)
+    .then((result) => {
+      return res.status(200).json(result.rows);
+    })
+    .catch((err) => {
+      return res.status(500).json(err);
+    });
+});
+
+////07.11.2025
 
 router.get("/comparetemprevision", (req, res) => {
   const point = req.query.point;
