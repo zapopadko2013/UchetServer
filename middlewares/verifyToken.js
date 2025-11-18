@@ -15,15 +15,21 @@ module.exports = function (req, res, next) {
     //console.log('1');
 
     /////11.04.2023
-    user.accesses= helpers.decrypt(user.accesses);
+    /////18.11.2025
+    //user.accesses= helpers.decrypt(user.accesses);
+    /////18.11.2025
    //20231101 AB <
     user.locales= helpers.decrypt(user.locales);
+    /////18.11.2025
+    /*
     user.iin = helpers.decrypt(`${user.iin}`);
     user.name = helpers.decrypt(user.name);
     user.login = helpers.decrypt(user.login);
     user.role = helpers.decrypt(user.role);
 	  user.prefix = helpers.decrypt(user.prefix);
 	  user.partner_id = helpers.decrypt(user.partner_id);
+    */
+    /////18.11.2025
 
     //console.log('2');
 
@@ -31,6 +37,9 @@ module.exports = function (req, res, next) {
     //user.roletables= helpers.decrypt(user.roletables);
     //user.role= helpers.decrypt(user.role);
     //20231012 AB signin_new add company info to JWT <
+
+    /////18.11.2025
+    /*
     user.company_name = helpers.decrypt(`${user.company_name}`);
     user.company_bin = helpers.decrypt(user.company_bin);
     user.company_address = helpers.decrypt(user.company_address);
@@ -45,7 +54,9 @@ module.exports = function (req, res, next) {
     user.company_holding = (helpers.decrypt(user.company_holding) === 'true');
     user.company_holding_parent = helpers.decrypt(user.company_holding_parent);
     user.company_wholesale = (helpers.decrypt(user.company_wholesale) === 'true');
-     
+    */
+    /////18.11.2025 
+
     //console.log('3');
     
     // user.company_prefix = helpers.decrypt(user.company_prefix);
