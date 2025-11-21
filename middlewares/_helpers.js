@@ -105,6 +105,8 @@ comparePass = (userPassword, databasePassword) => {
 createUser = (req) => {
   const salt = bcrypt.genSaltSync();
 
+//  console.log(req.body);
+
   let request = {
     login: req.body.user_login,
     name: encrypt(req.body.user_fullname),

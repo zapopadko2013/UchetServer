@@ -219,11 +219,19 @@ router.post('/companies/manage', (req, res) => {
 */
 //20231016 AB rabbitmq integration <
 router.get('/company/info', (req, res) => {
+
+	
+
 	knex('companies')
 	////03.10.2023
-	  .leftJoin("locales", "locales.company", "companies.id")
+	////20.11.2025
+	  //.leftJoin("locales", "locales.company", "companies.id")
+	  ////20.11.2025
 	////03.10.2023
 	.where({ id: req.query.id }).first().select('*',knex.raw(`to_char(certificatedate,'DD.MM.YYYY') as certificatedateform`)).then(user => {
+		
+		
+		
 		let userResp = {
 			name: helpers.decrypt(user.name),
 			bin: helpers.decrypt(user.bin),
@@ -412,6 +420,18 @@ router.get('/usernames', (req, res) => {
 			return res.status(500).json(err);
 		});
 });
+
+////19.11.2025
+router.get('/companytypes', (req, res) => {
+	knex("company_types")
+		.select('*')
+		.then(result => {
+			return res.status(200).json(result);
+		}).catch((err) => {
+			return res.status(500).json(err);
+		});
+});
+////19.11.2025
 
 router.get('/passreset', (req, res) => {
 	knex.raw(`SELECT passreset('{"company" : "${req.query.comp_id}", "login" : "${req.query.username}"}' :: json )`)

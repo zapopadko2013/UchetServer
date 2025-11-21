@@ -230,6 +230,10 @@ revsignin = (req, res, next) => {
 };
 
 signup = (req, res) => {
+
+  //console.log('signup');
+  //console.log(req.body);
+  
   helpers
     .createUser(req, res)
     .then((signupres) => {
