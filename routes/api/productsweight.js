@@ -64,7 +64,7 @@ router.get("/", (req, res) => {
 });
 
 //сервис для подтягивания доступных штрихкодов
-router.get("/barcode_unused", (req, res) => {
+/* router.get("/barcode_unused", (req, res) => {
   const company = req.userData.company;
   //генерит числа от 1 до максимального штрихкода и находит те, которые не входили в серию
   knex
@@ -202,7 +202,190 @@ router.get("/barcode_unused", (req, res) => {
           helpers.serverLog(err);
         });
     });
+}); */
+
+/* ///
+router.get("/barcode_unused", async (req, res) => {
+  const company = req.userData.company;
+
+  try {
+    // 1. Свободные штрихкоды
+    const seriesResult = await knex.raw(
+      `
+      WITH max_code AS (
+        SELECT COALESCE(MAX(substring(p.code from 3 for 5)::bigint), 0) AS max_code
+        FROM products p
+        WHERE p.category = -1 AND p.deleted = false AND p.company = ?
+      ),
+      series AS (
+        SELECT generate_series(1, (SELECT max_code FROM max_code)) AS code
+      ),
+      used AS (
+        SELECT substring(p.code from 3 for 5)::bigint AS code
+        FROM products p
+        WHERE p.company = ? AND p.category = -1 AND p.deleted = false
+        UNION
+        SELECT substring(pt.code from 3 for 5)::bigint
+        FROM products_temp pt
+        WHERE pt.company = ? AND pt.category = -1
+      )
+      SELECT s.code
+      FROM series s
+      WHERE s.code NOT IN (SELECT code FROM used)
+      ORDER BY s.code
+      `,
+      [company, company, company]
+    );
+
+    const barcodes = seriesResult.rows.map(r => ({ code: Number(r.code) }));
+    const maxRes = barcodes.length ? Math.max(...barcodes.map(b => b.code)) : 0;
+
+    // 2. Максимальные коды из products + products_temp
+    const maxTwo = await knex("products as p")
+      .where({ "p.company": company, "p.deleted": false, "p.category": -1 })
+      .max({ max: knex.raw("substring(p.code from 3 for 5)::bigint") })
+      .union([
+        knex("products_temp as pt")
+          .where({ "pt.company": company, "pt.category": -1, "pt.unitsprid": 6 })
+          .max({ max: knex.raw("substring(pt.code from 3 for 5)::bigint") }),
+      ]);
+
+    const m1 = parseInt(maxTwo[0]?.max || 0);
+    const m2 = parseInt(maxTwo[1]?.max || 0);
+    const max2 = Math.max(m1, m2);
+
+    if (max2 > maxRes) {
+      barcodes.push({ code: max2 + 1 });
+      return res.status(200).json(barcodes);
+    } else if (maxRes) {
+      return res.status(200).json(barcodes);
+    }
+
+    // 3. Проверка через stockcurrent
+    const b2 = await knex("products as p")
+      .innerJoin("stockcurrent as s", { "p.id": "s.product" })
+      .where({ "p.company": company, "p.category": -1, "p.deleted": false })
+      .max({ max: knex.raw("substring(p.code from 3 for 5)::bigint") });
+
+    const max3 = parseInt(b2[0]?.max || 0);
+    if (max3 > maxRes) {
+      barcodes.push({ code: max3 + 1 });
+      return res.status(200).json(barcodes);
+    } else if (maxRes) {
+      return res.status(200).json(barcodes);
+    }
+
+    // 4. Если ничего нет, вернуть 1
+    return res.status(200).json([{ code: 1 }]);
+
+  } catch (err) {
+    helpers.serverLog(err);
+
+    try {
+      // fallback по products_weight
+      const b = await knex("products_weight as p")
+        .where({ "p.company": company, "p.isdeleted": false })
+        .max({ max: knex.raw("p.barcode") });
+
+      if (b[0]?.max != null) {
+        return res.status(200).json([parseInt(b[0].max) + 1]);
+      }
+
+      // последний fallback по products + stockcurrent
+      const b2 = await knex("products as p")
+        .innerJoin("stockcurrent as s", { "p.id": "s.product" })
+        .where({ "p.company": company, "p.category": -1, "p.deleted": false })
+        .max({ max: knex.raw("substring(p.code from 3 for 5)::bigint") });
+
+      return res.status(200).json([parseInt(b2[0]?.max || 0) + 1]);
+
+    } catch (err2) {
+      helpers.serverLog(err2);
+      return res.status(500).json(err2);
+    }
+  }
 });
+/// */
+
+router.get("/barcode_unused", async (req, res) => {
+  const company = req.userData.company;
+
+  try {
+    // 1. CTE: объединяем все коды из products и products_temp
+    const freeSeries = await knex.raw(
+      `
+      WITH combined AS (
+        SELECT COALESCE(substring(code FROM 3 FOR 5)::bigint,0) AS code
+        FROM products
+        WHERE company = ? AND category = -1 AND deleted = false
+        UNION
+        SELECT COALESCE(substring(code FROM 3 FOR 5)::bigint,0) AS code
+        FROM products_temp
+        WHERE company = ? AND category = -1
+      ),
+      max_code AS (
+        SELECT COALESCE(MAX(code), 0) AS max_code
+        FROM combined
+      ),
+      series AS (
+        SELECT generate_series(1, (SELECT max_code FROM max_code)) AS code
+      )
+      SELECT s.code
+      FROM series s
+      WHERE NOT EXISTS (
+        SELECT 1 FROM combined c WHERE c.code = s.code
+      )
+      ORDER BY s.code;
+      `,
+      [company, company]
+    );
+
+    // Список свободных кодов
+    const barcodes = freeSeries.rows.map(r => ({ code: Number(r.code) }));
+
+    if (barcodes.length > 0) return res.status(200).json(barcodes);
+
+    // 2. Если свободных нет, берём следующий по порядку из products + products_temp
+    const maxProducts = await knex("products as p")
+      .where({ "p.company": company, "p.deleted": false, "p.category": -1 })
+      .max({ max_code: knex.raw("COALESCE(substring(p.code FROM 3 FOR 5)::bigint, 0)") });
+
+    const maxTemp = await knex("products_temp as pt")
+      .where({ "pt.company": company, "pt.category": -1 })
+      .max({ max_code: knex.raw("COALESCE(substring(pt.code FROM 3 FOR 5)::bigint, 0)") });
+
+    const maxNext = Math.max(
+      parseInt(maxProducts[0]?.max_code || 0),
+      parseInt(maxTemp[0]?.max_code || 0)
+    );
+
+    if (maxNext > 0) return res.status(200).json([{ code: maxNext + 1 }]);
+
+    // 3. Проверка через stockcurrent
+    const stockMax = await knex("products as p")
+      .innerJoin("stockcurrent as s", { "p.id": "s.product" })
+      .where({ "p.company": company, "p.category": -1, "p.deleted": false })
+      .max({ max_code: knex.raw("COALESCE(substring(p.code FROM 3 FOR 5)::bigint, 0)") });
+
+    if (stockMax[0]?.max_code > 0) return res.status(200).json([{ code: Number(stockMax[0].max_code) + 1 }]);
+
+    // 4. fallback по products_weight
+    const weightMax = await knex("products_weight as p")
+      .where({ "p.company": company, "p.isdeleted": false })
+      .max({ max: "p.barcode" });
+
+    if (weightMax[0]?.max != null) return res.status(200).json([{ code: Number(weightMax[0].max) + 1 }]);
+
+    // 5. Если совсем ничего нет, вернуть 1
+    return res.status(200).json([{ code: 1 }]);
+
+  } catch (err) {
+    helpers.serverLog(err);
+    return res.status(500).json({ error: "Server error", details: err });
+  }
+});
+
+
 
 //выгрузка PLU
 router.post("/to-text", (req, res) => {

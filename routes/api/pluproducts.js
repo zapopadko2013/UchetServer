@@ -385,8 +385,8 @@ router.get("/download", (req, res) => {
 
 
 //сервис для подтягивания доступных штрихкодов
-
-router.get("/barcode_unused", (req, res) => {
+////21.11.2025
+/* router.get("/barcode_unused", (req, res) => {
   const company = req.userData.company;
   //генерит числа от 1 до максимального штрихкода и находит те, которые не входили в серию
   knex
@@ -524,7 +524,71 @@ router.get("/barcode_unused", (req, res) => {
           helpers.serverLog(err);
         });
     });
+}); */
+
+router.get("/barcode_unused", async (req, res) => {
+  const company = req.userData.company;
+
+  try {
+    const result = await knex.raw(
+      `
+      WITH combined AS (
+          SELECT COALESCE(substring(code FROM 3 FOR 5)::bigint, 0) AS code
+          FROM products
+          WHERE company = ?
+            AND category = -1
+            AND deleted = false
+
+          UNION ALL
+
+          SELECT COALESCE(substring(code FROM 3 FOR 5)::bigint, 0)
+          FROM products_temp
+          WHERE company = ?
+            AND category = -1
+      ),
+
+      max_code AS (
+          SELECT COALESCE(MAX(code), 0) AS max_code FROM combined
+      ),
+
+      series AS (
+          SELECT generate_series(1, GREATEST((SELECT max_code FROM max_code), 1)) AS code
+      )
+
+      SELECT s.code
+      FROM series s
+      WHERE NOT EXISTS (
+          SELECT 1 FROM combined c WHERE c.code = s.code
+      )
+      ORDER BY s.code;
+      `,
+      [company, company]
+    );
+
+    const freeCodes = result.rows.map(r => r.code);
+
+    if (freeCodes.length > 0) {
+      return res.status(200).json(freeCodes);
+    }
+
+    // Если нет ни одного свободного — вернуть следующий по порядку
+    const [{ max_code }] = await knex("products as p")
+      .where({
+        "p.company": company,
+        "p.deleted": false,
+        "p.category": -1,
+      })
+      .max(knex.raw("COALESCE(substring(code FROM 3 FOR 5)::bigint, 0) as max_code"));
+
+    return res.status(200).json([max_code + 1]);
+
+  } catch (err) {
+    helpers.serverLog(err);
+    return res.status(500).json({ error: "Server error", details: err });
+  }
 });
+
+////21.11.2025
 
 router.post("/excel", (req, res) => {
   const plu_products = req.body.plu_products;
