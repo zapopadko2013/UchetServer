@@ -25,6 +25,29 @@ router.get('/', (req, res) => {
 		});
 });
 
+//////24.11.2025
+router.get('/inactive', (req, res) => {
+	
+	const company = req.userData.company;
+	
+	knex('attributenames')
+		.select('attributenames.id', 'attributenames.category', 'attributenames.values', 'attributenames.deleted', 'attributenames.format',
+			knex.raw(`array(select value  
+						from attributespr 
+							where attributeid = attributenames.id
+							  and company = ${company}
+								and deleted is true
+								  order by id) as sprvalues`))
+		.where({ 'deleted': true })
+		.orderBy('attributenames.id')
+		.then(attributenames => {
+			return res.status(200).json(attributenames);
+		}).catch((err) => {
+			return res.status(500).json(err);
+		});
+});
+//////24.11.2025
+
 router.get('/list', (req, res) => {
 	knex('attrlist')
 		.leftJoin('attributenames', { 'attributenames.id': 'attrlist.attribute' })
