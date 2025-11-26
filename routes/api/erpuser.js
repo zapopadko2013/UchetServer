@@ -345,6 +345,117 @@ router.post('/manage', (req, res) => {
 
 });
 
+/////25.11.2025
+
+router.get("/all", (req, res) => {
+	knex("erp_users")
+	  .leftJoin(
+		knex.raw(`(select r.sid, json_agg(json_build_object('id', a.id, 'code', a.reg_code,'name', a.name_rus)) as functions
+		  --from (select id as sid, cast(json_array_elements(accesses)::json->>'id' as bigint) as function_id from erp_users
+		  from (select id as sid, cast(json_array_elements(accessesu)::json->>'id' as bigint) as function_id from erp_users 
+		  where id not in (0,-1) and status = 'ACTIVE') as r
+		  --left join access_table as a
+		  left join access_tableu as a
+		  on a.id=r.function_id
+		  group by
+		   r.sid) as erpaccess`),
+		"erpaccess.sid",
+		"erp_users.id"
+	  )
+	  .where({  status: "ACTIVE" })
+	  .andWhereRaw(`id not in (0,-1)`)
+	  .select(
+		"erp_users.login",
+		"erp_users.id",
+		"erp_users.iin",
+		"erp_users.name",
+		"erp_users.role",
+		"erp_users.status",
+		"erp_users.company",
+		"erpaccess.functions as accesses",
+		knex.raw(
+		  "array_to_string(array(select '{''name'': ''' || r.name || ''', ''id'': ''' || r.id || '''}' from user2roles u left join erp_roles r on (u.role = r.id) where u.user = erp_users.id),', ') as roles"
+		)
+	  )
+	  .then((users) => {
+		users.forEach((user) => {
+		  if (user.id === req.userData.id) user.self = true;
+		  user.iin = helpers.decrypt(user.iin);
+		  user.name = helpers.decrypt(user.name);
+		});
+  
+		users.sort((a, b) => (a.name > b.name ? 1 : -1));
+  
+		return res.status(200).json(users);
+	  })
+	  .catch((err) => {
+		console.log(err);
+		return res.status(500).json({
+		  error: err.message,
+		});
+	  });
+});
+
+router.post("/toggle_erpusers",(req,res)=>{
+	//console.log('erpuser.js ab_toggle_epruser req', req);
+	//onsole.log('erpuser.js ab_toggle_epruser JSON.stringify(req.body)', JSON.stringify(req.body));
+	const ids = [];
+	const status = req.body.erpuser[0].status;
+	req.body.erpuser.forEach((erpuser) => {
+		ids.push(erpuser.id);
+	});
+	knex.raw(
+		`UPDATE public.erp_users
+		SET  status = '${status}'
+		WHERE id in (${ids.toString()})`
+	)
+	.then(result => {
+		//console.log(`erpuser.js toggle_erpuser result: ${JSON.stringify(result)} `)
+		
+		return res.status(200).json({
+			success: true,
+			result: result,
+		  });
+
+	})
+	.catch((err) => {
+		return res.status(500).json({
+		  error: err.message,
+		});
+	  });
+
+
+});	
+
+
+/* router.get("/inactive", (req, res) => {
+	knex("erp_users")
+	  .where({ status: "DISMISS" })
+	  .select(
+		"login",
+		"id",
+		"iin",
+		"name",
+		"role",
+		"status",
+		"company",
+		"accesses"
+	  )
+	  .then((users) => {
+		users.forEach((user) => {
+		  if (user.id === req.userData.id) user.self = true;
+		  user.iin = helpers.decrypt(user.iin);
+		  user.name = helpers.decrypt(user.name);
+		});
+		return res.status(200).json(users);
+	  })
+	  .catch((err) => {
+		return res.status(500).json(err);
+	  });
+  }); */
+/////25.11.2025
+
+
 router.post('/changepass', (req, res) => {
 	const salt = bcrypt.genSaltSync();
 	let status = 200;
