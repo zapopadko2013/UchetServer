@@ -29,6 +29,9 @@ require('https').globalAgent.options.ca = require('ssl-root-cas/latest').create(
 const app = express();
 const port = process.env.PORT;
 
+
+
+
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use(express.json({ limit: "50mb" }));
 app.use(compression());
@@ -57,7 +60,18 @@ app.use(cors(corsOptions));
 app.options('*', cors(corsOptions));  */
 //////04.09.2025
 
-app.use('/public', express.static(__dirname + '/public'));
+/////22.12.2025
+//app.use('/public', express.static(__dirname + '/public'));
+
+
+const path = require('path');
+
+const appDir = path.dirname(process.execPath);
+app.use(
+  '/public',
+  express.static(path.join(appDir, 'public'))
+);
+/////22.12.2025
 
 //////04.09.2025
 // app.all('/*', function (req, res, next) {

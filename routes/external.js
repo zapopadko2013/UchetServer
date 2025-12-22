@@ -494,6 +494,16 @@ router.post("/api/invoice/processing", (req, res) => {
 
 router.post("/api/invoice/transfertransactions", (req, res) => {
   // helpers.serverLog(req.originalUrl, req.body);
+
+  
+  /////08.12.2025
+  /*
+   console.log('transfertransactions:');
+   console.log(req.body);
+    */
+  /////08.12.2025
+ 
+
   knex
     .raw("select transfer_transactions(?)", [req.body])
     .then((result) => {

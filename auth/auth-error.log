@@ -9514,3 +9514,6 @@
 11.09.2025 10:46:59 : user - demo2 error - NoUserFound
 21.11.2025 10:07:37 : user - admin error - WrongPassword
 21.11.2025 10:19:22 : user - admin error - WrongPassword
+26.11.2025 09:44:54 : user - admin error - WrongPassword
+03.12.2025 10:47:13 : user - admin error - WrongPassword
+05.12.2025 08:43:14 : user - testmo@mail.ru error - NoUserFound
