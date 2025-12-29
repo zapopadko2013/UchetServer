@@ -18,13 +18,20 @@ const fs = require('fs');
 // const helpers = require('./middlewares/_helpers');
 const rateLimit = require("express-rate-limit");
 
+/////23.12.2025
+//import chatRouter from './routes/chat.route.js'; // Импорт вашего файла
+const chatRouter = require('./routes/chat.route.js');
+/////23.12.2025
+
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100// 100 Requests,
   //message: "Too many accounts created from this IP, please try again after an hour"
 });
 
-require('https').globalAgent.options.ca = require('ssl-root-cas/latest').create();
+//24.12.2025
+//require('https').globalAgent.options.ca = require('ssl-root-cas/latest').create();
+//24.12.2025
 
 const app = express();
 const port = process.env.PORT;
@@ -61,16 +68,16 @@ app.options('*', cors(corsOptions));  */
 //////04.09.2025
 
 /////22.12.2025
-//app.use('/public', express.static(__dirname + '/public'));
+app.use('/public', express.static(__dirname + '/public'));
 
 
-const path = require('path');
+/* const path = require('path');
 
 const appDir = path.dirname(process.execPath);
 app.use(
   '/public',
   express.static(path.join(appDir, 'public'))
-);
+); */
 /////22.12.2025
 
 //////04.09.2025
@@ -88,7 +95,9 @@ app.use('/external', verifyExternalToken, externalRoutes);
 app.use('/api', verifyToken, apiRoutes);
 app.use('/mail', emailRoutes);
 
-
+/////23.12.2025
+app.use('/apichat', chatRouter);
+/////23.12.2025
 
 //https.createServer({
 //	key: fs.readFileSync('./cert/server.key'),
