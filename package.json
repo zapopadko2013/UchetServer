@@ -11,6 +11,8 @@
   "author": "Orynbek Shaken",
   "license": "ISC",
   "dependencies": {
+    "@google/genai": "^1.34.0",
+    "@google/generative-ai": "^0.24.1",
     "@modelcontextprotocol/sdk": "^1.25.1",
     "async": "^2.6.2",
     "bcryptjs": "^2.4.3",
