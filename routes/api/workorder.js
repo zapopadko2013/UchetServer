@@ -48,10 +48,122 @@ WHERE
 /////06.01.2026
 
 router.post('/send-whatsapp', async (req, res) => {
-    const { workorderId } = req.body;
+
+
+   /*  // 1. Подготовка данных для SQL функции
+    const { workorderId, counterparty } = req.body;
+    const userId = req.userData.id;
     const companyId = req.userData.company;
 
+    // Формируем JSON объект, который ожидает ваша функция
+    const sqlParam = {
+        workorder_id: workorderId,
+        counterparty: counterparty,
+        user: userId,
+        company: companyId
+    };
+
+    try {
+        // 2. ВЫЗОВ SQL ФУНКЦИИ
+        const dbResponse = await knex.raw('SELECT create_invoice_workorder(?)', [JSON.stringify(sqlParam)]);
+        
+        // В PostgreSQL SETOF возвращает массив строк
+        const result = dbResponse.rows[0].create_invoice_workorder;
+
+        // ПРОВЕРКА НА ОШИБКИ БИЗНЕС-ЛОГИКИ (ваши SQLSTATE 'S0001'-'S0005')
+        if (result.code !== 'success') {
+            return res.status(400).json({
+                code: result.code,
+                text: result.text,
+                error: "Ошибка при создании накладной в БД"
+            });
+        }
+
+        // Если дошли сюда — накладная успешно создана (result.text содержит номер инвойса)
+        const invoiceNumber = result.text;
+
+        // 3. ПОЛУЧЕНИЕ ДАННЫХ ДЛЯ WHATSAPP
+        // Берем данные только по конкретному поставщику, который прошел через функцию
+        const waData = await knex.raw(
+            `SELECT 
+                p.name,              
+                wd.units, 
+                wd.purchaseprice,
+                c.sendwhatsapp,
+                comp.name as companyname,
+                comp.address,
+                w.workorder_number
+            FROM workorder_details wd
+            JOIN workorder w ON wd.workorder_id = w.id
+            JOIN counterparties c ON wd.counterparty = c.id
+            JOIN products p ON wd.product = p.id 
+            JOIN companies comp ON w.company = comp.id 
+            WHERE w.id = ? AND w.company = ? AND wd.counterparty = ?`,
+            [workorderId, companyId, counterparty]
+        );
+
+        const details = waData.rows;
+
+        // 4. ЛОГИКА ОТПРАВКИ СООБЩЕНИЙ
+        if (details.length > 0 && details[0].sendwhatsapp) {
+            const phone = details[0].sendwhatsapp;
+            const ID_INSTANCE = process.env.GREEN_API_ID_INSTANCE;
+            const API_TOKEN = process.env.GREEN_API_TOKEN;
+
+            // Формируем текст сообщения
+            let message = `*ПРИЕМКА ЗАКАЗА №${details[0].workorder_number}*\n`;
+            message += `_Накладная: ${invoiceNumber}_\n`;
+            message += `_Организация: ${helpers.decrypt(details[0].companyname)}_\n\n`;
+            
+            message += "```" + "------------------------------\n";
+            message += "Товар          |Кол |Цена \n";
+            message += "------------------------------\n";
+
+            let totalSum = 0;
+            details.forEach(item => {
+                const name = item.name.substring(0, 14).padEnd(15, ' ');
+                const qty = item.units.toString().padEnd(4, ' ');
+                const price = (item.purchaseprice || 0).toString().padEnd(6, ' ');
+                message += `${name}|${qty}|${price}\n`;
+                totalSum += (item.units * (item.purchaseprice || 0));
+            });
+
+            message += "------------------------------\n";
+            message += `ИТОГО: ${totalSum.toLocaleString()} \n`;
+            message += "------------------------------" + "```\n";
+
+            const chatId = `${phone.replace(/\D/g, '')}@c.us`;
+
+            // Отправляем асинхронно, не блокируя ответ пользователю (опционально)
+            fetch(`https://api.green-api.com/waInstance${ID_INSTANCE}/sendMessage/${API_TOKEN}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chatId, message })
+            }).catch(e => console.error("Ошибка GreenAPI:", e));
+        }
+
+        // 5. ФИНАЛЬНЫЙ ОТВЕТ КЛИЕНТУ
+        return res.status(200).json({ 
+            success: true, 
+            invoice: invoiceNumber,
+            message: "Накладная создана, данные обновлены"
+        });
+
+    } catch (err) {
+        console.error("Critical Server Error:", err);
+        return res.status(500).json({ 
+            code: 'internal_error', 
+            text: 'Критическая ошибка сервера при обработке накладной' 
+        });
+    }
+
+ */
    
+     const { workorderId } = req.body;
+    const companyId = req.userData.company;
+
+
+    
    
     const ID_INSTANCE = process.env.GREEN_API_ID_INSTANCE;
     const API_TOKEN = process.env.GREEN_API_TOKEN;
@@ -91,10 +203,10 @@ router.post('/send-whatsapp', async (req, res) => {
         }, {});
 
         // 3. Рассылка через Green-API
-        /* const sendPromises = Object.keys(groups).map(async (phone) => {
-            const itemsText = groups[phone]
-                .map(i => `${i.name} (${i.units} шт., Цена - ${i.purchaseprice})`)
-                .join(', '); */
+        //  const sendPromises = Object.keys(groups).map(async (phone) => {
+        //     const itemsText = groups[phone]
+        //         .map(i => `${i.name} (${i.units} шт., Цена - ${i.purchaseprice})`)
+        //         .join(', '); 
 
                 const sendPromises = Object.keys(groups).map(async (phone) => {
     // Заголовок сообщения
@@ -149,7 +261,7 @@ router.post('/send-whatsapp', async (req, res) => {
     } catch (err) {
         console.error(err);
         return res.status(500).json({ error: "Ошибка сервера при отправке" });
-    }
+    } 
 });
 
 /////06.01.2026
@@ -172,16 +284,23 @@ router.get('/list', (req, res) => {
 	w.workorder_number,
 	pt."name" AS point_name,
 	eu."name" AS username
+    ----09.01.2026
+    ,c.name as counterpartyname
+    ,w.isfavorite
+    ----09.01.2026
 FROM
 	"workorder" w
 	INNER JOIN pointset ps ON ps.stock = w.point 
 	INNER JOIN points pt ON pt."id" = ps.point
 	INNER JOIN erp_users eu ON eu."id" = w.userid
+    ----09.01.2026
+    LEFT JOIN counterparties c ON w.counterparty=c.id
+    ----09.01.2026
 WHERE
     w.company = ${req.userData.company}
     --${req.query.rec === 'true' ? " " : ` AND w.userid = ${req.userData.id}`}
     --${req.query.rec === 'true' ? " AND w.status IN ('APPROVED', 'PART', 'ACCEPTED')" : " "}
-    ORDER BY w.date DESC
+    ORDER BY w.isfavorite DESC, w.date DESC
     `)
         .then((result) => {
             helpers.serverLog(result.rows);
@@ -386,6 +505,18 @@ router.post('/details/update', (req, res) => {
     }
 });
 
+/////09.01.2026
+
+router.post('/favorite', (req, res) => {
+    knex.raw(`update workorder set isfavorite=?
+    where company = ? 
+    and id = ?`, [req.body.isfavorite,req.userData.company, req.body.workorderId])
+        .then(result => { return res.status(200).json(result.rows) })
+        .catch((err) => { helpers.log(err); return res.status(500).json(err) })
+});
+
+
+//////09.01.2026
 
 router.post('/details/delete', (req, res) => {
     const attributes = req.body.attributes === null || req.body.attributes === undefined ? 0 : req.body.attributes;
