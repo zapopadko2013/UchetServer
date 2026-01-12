@@ -414,7 +414,21 @@ router.post("/chat", async (req, res) => {
             sessionExpired: "❌ Сессия истекла. Перезайдите.",
             noData: "данных не найдено",
             periods: { today: "сегодня", week: "неделю", month: "месяц", half_year: "полгода", year: "год" },
-            status: { norm: "✅ Норма", low: "⚠️ Дефицит", high: "📦 Много" }
+            status: { norm: "✅ Норма", low: "⚠️ Дефицит", high: "📦 Много" },
+            cpNotFound: (name) => `❌ Поставщик "${name}" не найден.`,
+        pointNotFound: (name) => `❌ Точка/Склад "${name}" не найдена.`,
+        prodNotFound: (name) => `❌ Товар "${name}" не найден в справочнике.`,
+        attention: "⚠️ **Внимание:**",
+        errDetail: (name, err) => `❌ Ошибка при добавлении товара "${name}": ${err}`,
+        errTech: (name) => `❌ Техническая ошибка при добавлении товара "${name}".`,
+        success: "✅ **Заказ успешно сформирован!**",
+        vendor: "Поставщик",
+        point: "Точка",
+        products: "Товары",
+        qty: "шт.",
+        buy: "Закуп",
+        sell: "Продажа",
+        processingErr: "Ошибка при обработке заказа."
         },
         kk: {
             stockResults: "Нәтижелер",
@@ -454,7 +468,21 @@ router.post("/chat", async (req, res) => {
             nothingFound: "\"{query}\" сұранысы бойынша қоймалардан ештеңе табылмады.",
             noData: "мәлімет табылмады",
             periods: { today: "бүгін", week: "апта", month: "ай", half_year: "жарты жыл", year: "жыл" },
-            status: { norm: "✅ Қалыпты", low: "⚠️ Талшылық", high: "📦 Артық" }
+            status: { norm: "✅ Қалыпты", low: "⚠️ Талшылық", high: "📦 Артық" },
+            cpNotFound: (name) => `❌ "${name}" жеткізушісі табылмады.`,
+        pointNotFound: (name) => `❌ "${name}" нүктесі/қоймасы табылмады.`,
+        prodNotFound: (name) => `❌ "${name}" тауары анықтамалықтан табылмады.`,
+        attention: "⚠️ **Назар аударыңыз:**",
+        errDetail: (name, err) => `❌ "${name}" тауарын қосу қатесі: ${err}`,
+        errTech: (name) => `❌ "${name}" тауарын қосу кезінде техникалық қате шықты.`,
+        success: "✅ **Тапсырыс сәтті қалыптасты!**",
+        vendor: "Жеткізуші",
+        point: "Нүкте",
+        products: "Тауарлар",
+        qty: "дана",
+        buy: "Сатып алу",
+        sell: "Сату",
+        processingErr: "Тапсырысты өңдеу кезінде қате кетті."
         },
         en: {
             stockResults: "Results for",
@@ -494,7 +522,21 @@ router.post("/chat", async (req, res) => {
             nothingFound: "Nothing found in warehouses for the request \"{query}\".",
             noData: "no data found",
             periods: { today: "today", week: "week", month: "month", half_year: "half year", year: "year" },
-            status: { norm: "✅ Normal", low: "⚠️ Low Stock", high: "📦 Surplus" }
+            status: { norm: "✅ Normal", low: "⚠️ Low Stock", high: "📦 Surplus" },
+            cpNotFound: (name) => `❌ Supplier "${name}" was not found.`,
+    pointNotFound: (name) => `❌ Point/Warehouse "${name}" was not found.`,
+    prodNotFound: (name) => `❌ Product "${name}" was not found in the catalog.`,
+    attention: "⚠️ **Attention:**",
+    errDetail: (name, err) => `❌ Error adding product "${name}": ${err}`,
+    errTech: (name) => `❌ Technical error while adding product "${name}".`,
+    success: "✅ **Order created successfully!**",
+    vendor: "Supplier",
+    point: "Point",
+    products: "Products",
+    qty: "pcs", // "pieces" (штуки)
+    buy: "Cost", // Цена закупки
+    sell: "Price", // Цена продажи
+    processingErr: "Error processing the order."
         }
     };
 
@@ -1294,8 +1336,9 @@ const anomaliesText = anomalies.length > 0
             .first();
 
         if (!counterparty) {
-            finalAnswer = `❌ Поставщик "${args.counterparty}" не найден в базе данных. Пожалуйста, уточните название.`;
-            return res.json({ answer: finalAnswer });
+            /* finalAnswer = `❌ Поставщик "${args.counterparty}" не найден в базе данных. Пожалуйста, уточните название.`;
+            return res.json({ answer: finalAnswer }); */
+            return res.json({ answer: t.cpNotFound(args.counterparty) });
         }
 
         // 2. Ищем ID точки (склада) аналогичным образом
@@ -1323,8 +1366,9 @@ const anomaliesText = anomalies.length > 0
   .first();
 
         if (!point) {
-            finalAnswer = `❌ Точка/Склад "${args.point}" не найдена.`;
-            return res.json({ answer: finalAnswer });
+            /* finalAnswer = `❌ Точка/Склад "${args.point}" не найдена.`;
+            return res.json({ answer: finalAnswer }); */
+            return res.json({ answer: t.pointNotFound(args.point) });
         }
 
 
@@ -1350,9 +1394,10 @@ for (const item of args.items) {
 
   if (!product) {
     // Если один из товаров не найден, прерываем и просим уточнить
-    return res.json({ 
+    /* return res.json({ 
       answer: `❌ Товар "${item.name}" не найден в справочнике. Пожалуйста, проверьте название.` 
-    });
+    }); */
+    return res.json({ answer: t.prodNotFound(item.name) });
   }
 
   // Если нашли, добавляем в список валидных товаров с его реальным ID
@@ -1403,8 +1448,9 @@ const responseData = await response.json();
 const result = Array.isArray(responseData) ? responseData[0] : responseData;
    if (result?.workorder_management?.code === 'exception') {
     // Формируем понятный ответ для пользователя чата
-    finalAnswer = `⚠️ **Внимание:** ${result.workorder_management.text}`;
-    
+    //finalAnswer = `⚠️ **Внимание:** ${result.workorder_management.text}`;
+    finalAnswer = `${t.attention} ${result.workorder_management.text}`;
+
     return res.json({ 
         answer: finalAnswer,
         dataType: "none" 
@@ -1454,15 +1500,21 @@ for (const item of validatedItems) {
       const errorText = result1?.text || result1?.workorder_management?.text || JSON.stringify(result1);
       
       // Возвращаем ответ и ВЫХОДИМ из функции, чтобы не продолжать цикл по остальным товарам
-      return res.json({ answer: `❌ Ошибка при добавлении товара "${item.name}": ${errorText}` });
+     // return res.json({ answer: `❌ Ошибка при добавлении товара "${item.name}": ${errorText}` });
+     finalAnswer = t.errDetail(item.name, errorText);
+  
+  return res.json({ answer: finalAnswer });
     }
     
     // Если всё хорошо, цикл просто идет дальше к следующему товару (item)
 
   } catch (err) {
     console.error("Fetch error:", err);
-    return res.json({ answer: `❌ Техническая ошибка связи с сервером при добавлении товара "${item.name}".` });
-  }
+    //return res.json({ answer: `❌ Техническая ошибка связи с сервером при добавлении товара "${item.name}".` });
+    finalAnswer = t.errTech(item.name);
+    
+    return res.json({ answer: finalAnswer });  
+}
 }
     ///////
 
@@ -1480,12 +1532,20 @@ for (const item of validatedItems) {
             }))
         };
 
-        finalAnswer = `✅ **Заказ успешно сформирован!**\n\n` +
+        /* finalAnswer = `✅ **Заказ успешно сформирован!**\n\n` +
                           `**Поставщик:** ${args.counterparty}\n` +
                           `**Точка:** ${args.point}\n` +
                           `**Товары:**\n` + 
                           args.items.map(i => `- ${i.name}: ${i.quantity} шт. Закупка по: ${i.price}, Продажа по: ${i.price1}`).join("\n");
-        
+         */
+
+        finalAnswer = `### ${t.success}\n\n` +
+    `**${t.vendor}:** ${counterparty.name}\n` +
+    `**${t.point}:** ${args.point.trim()}\n\n` +
+    `**${t.products}:**\n` +
+    validatedItems.map(i => 
+        `- ${i.name}: **${i.units}** ${t.qty} (${t.buy}: ${i.price}, ${t.sell}: ${i.price1})`
+    ).join("\n");
 
         /* const orderRes = await fetch(`${process.env.BACKEND_URL}/api/workorder/create-via-chat`, {
             method: 'POST',

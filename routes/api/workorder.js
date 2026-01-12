@@ -449,6 +449,94 @@ router.post('/manage', (req, res) => {
         .catch((err) => { return res.status(500).json(err) })
 })
 
+//////12.01.2026
+router.get('/get-min-price', async (req, res) => {
+    const { productId, currentCounterpartyId } = req.query;
+    //const companyId = req.userData.company;
+
+    const sql = `SELECT
+    p.name AS product_name,
+    cp.name AS counterparty_name,
+    cp.address,
+    inv.invoicedate,
+    l.purchaseprice AS min_price
+FROM invoicelist l
+INNER JOIN invoices inv ON l.invoice = inv.invoicenumber AND l.company = inv.company
+INNER JOIN products p ON p.id = l.stock AND p.company = l.company
+INNER JOIN counterparties cp ON cp.id = inv.counterparty AND cp.company = inv.company
+WHERE 
+    l.stock = ?              -- ID нашего товара
+    AND inv.type = 2         -- Тип: Приходная накладная
+    AND inv.status = 'ACCEPTED'
+    AND inv.invoicedate::date BETWEEN CURRENT_DATE - INTERVAL '3 months' AND CURRENT_DATE
+ORDER BY l.purchaseprice ASC 
+LIMIT 1;                      `;
+
+    try {
+        const result = await knex.raw(sql, [productId]);
+        // Возвращаем первую строку (самую дешевую) или null
+        return res.status(200).json(result.rows[0] || null);
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+});
+
+
+router.get('/check-better-prices', async (req, res) => {
+    const workorderId = req.query.id; 
+    const companyId = req.userData.company; 
+
+    // Проверка на наличие ID
+    if (!workorderId) {
+        return res.status(400).json({ error: "Missing workorder ID" });
+    }
+
+    const sql = `
+        WITH CurrentOrder AS (
+            SELECT 
+                w.counterparty AS order_counterparty_id,
+                wd.product AS product_id,
+                wd.purchaseprice AS order_price,
+                w.company
+            FROM workorder w 
+            INNER JOIN workorder_details wd ON w.id = wd.workorder_id
+            WHERE w.id = ? AND w.company = ?
+        )
+        SELECT
+            p.name AS product_name,
+            cp.name AS counterparty_name,
+            cp.address,
+            inv.invoicedate,
+            co.order_price AS my_order_price,
+            l.purchaseprice AS cheaper_price,
+            (co.order_price - l.purchaseprice) AS price_difference
+        FROM CurrentOrder co
+        INNER JOIN invoicelist l ON l.stock = co.product_id AND l.company = co.company 
+        INNER JOIN invoices inv ON l.invoice = inv.invoicenumber AND l.company = inv.company
+        INNER JOIN products p ON p.id = l.stock AND l.company = p.company
+        INNER JOIN counterparties cp ON cp.id = inv.counterparty AND l.company = cp.company
+        WHERE 
+            inv.type = 2 
+            AND inv.status = UPPER('accepted')
+            AND inv.invoicedate::date BETWEEN CURRENT_DATE - INTERVAL '3 months' AND CURRENT_DATE
+            AND inv.counterparty != co.order_counterparty_id 
+            AND l.purchaseprice < co.order_price           
+        ORDER BY price_difference DESC
+    `;
+
+    try {
+        // Передаем параметры в массив вторым аргументом knex.raw
+        const result = await knex.raw(sql, [workorderId, companyId]);
+        
+        return res.status(200).json(result.rows);
+    } catch (err) {
+        console.error("Price check error:", err);
+        return res.status(500).json({ error: "Internal Server Error", details: err.message });
+    }
+});
+
+//////12.01.2026
+
 router.get('/checkactive', (req, res) => {
     knex.raw(`
         SELECT
