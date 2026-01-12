@@ -47,6 +47,10 @@ const workorder = require('./api/workorder');
 const pluproducts = require("./api/pluproducts");
 const newrevision = require("./api/newrevision");
 
+/////09.01.2026
+const chatroute = require("./api/chat.route");
+/////09.01.2026
+
 const router = new express.Router();
 
 router.use("/reconciliation", reconciliation);
@@ -84,6 +88,10 @@ router.use("/coupons", coupons);
 router.use("/margin", margin);
 router.use("/settings", settings);
 router.use("/companysettings",companysettings);
+
+/////09.01.2026
+router.use("/chatroute",chatroute);
+/////09.01.2026
 
 router.use("/nomenclature",nomenclature);
 router.use(fileUpload());

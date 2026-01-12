@@ -236,6 +236,8 @@ try {
 module.exports = router; */
 
 const express = require('express');
+const knex = require("../../db/knex");
+const helpers = require("../../middlewares/_helpers");
 const router = express.Router();
  const { OpenAI } = require('openai');
 
@@ -359,7 +361,7 @@ const groq = new OpenAI({
 
 router.post("/chat", async (req, res) => {
 
-    console.log(req);
+   
     const { message, lang = 'ru' } = req.body;
     const authToken = req.headers['authorization'];
     
@@ -1297,17 +1299,77 @@ const anomaliesText = anomalies.length > 0
         }
 
         // 2. Ищем ID точки (склада) аналогичным образом
+
+        let p1 = helpers.encrypt(args.point.trim());
+        /*
         const point = await knex('points')
             .where({ 'company': company, 'points.status': 'ACTIVE' })
-            .whereRaw('lower(name) = lower(?)', [args.point.trim()])
+            //.whereRaw('lower(name) = lower(?)', [args.point.trim()])
+            .whereRaw('lower(name) = lower(?)', [p1])
             //.whereRaw('lower(name) ilike (?)', ['%' + args.point.trim() + '%'])
             .select('id', 'name')
             .first();
+            */
+
+       
+       const point = await knex('points')
+  .innerJoin('pointset', 'points.id', 'pointset.point')
+  .where({
+    'points.company': company,
+    'points.status': 'ACTIVE'
+  })
+  .whereRaw('LOWER(points.name) = LOWER(?)', [p1.trim()]) // Безопасная передача параметра
+  .select('points.id', 'pointset.stock as stockid', 'points.name')
+  .first();
 
         if (!point) {
             finalAnswer = `❌ Точка/Склад "${args.point}" не найдена.`;
             return res.json({ answer: finalAnswer });
         }
+
+
+  /////
+  
+  // Проходимся по списку товаров, присланных ИИ, и ищем их ID в базе
+const validatedItems = [];
+
+for (const item of args.items) {
+  // Выполняем поиск продукта
+  const productResult = await knex.raw(`
+    SELECT pr.id, pr.name, pr.code
+    FROM products pr
+    WHERE pr.name = ? 
+      AND pr.company = ?
+      AND NOT pr.deleted
+      AND pr.category <> -1
+    ORDER BY pr.name
+    LIMIT 1
+  `, [`${item.name}`, company]);
+
+  const product = productResult.rows[0];
+
+  if (!product) {
+    // Если один из товаров не найден, прерываем и просим уточнить
+    return res.json({ 
+      answer: `❌ Товар "${item.name}" не найден в справочнике. Пожалуйста, проверьте название.` 
+    });
+  }
+
+  // Если нашли, добавляем в список валидных товаров с его реальным ID
+  validatedItems.push({
+    product: product.id,      // ID из базы
+    name: product.name,       // Точное имя из базы
+    units: item.quantity,
+    price: item.price,        // Цена закупки
+    price1: item.price1 || 0  // Цена продажи
+  });
+}
+
+// Теперь в 'body' для запроса на создание заказа передаем validatedItems
+//body.items = validatedItems;
+  
+  /////
+
 
         const workorder = await knex('workorder')
             .whereRaw("workorder_number ~ '^[0-9]+$'") // Берем только строки, состоящие целиком из цифр
@@ -1318,33 +1380,92 @@ const anomaliesText = anomalies.length > 0
 
         const body = {
         workorder_number: nextNumber,
-        point: point.id,
+        point: point.stockid,
         counterparty: counterparty.id,
          
       };
 
-      const response = await sendRequest(`${API_URL}/api/workorder/manage`, {
+      //console.log(body);
+      const response = await fetch(`${process.env.BACKEND_URL}/api/workorder/manage`, {
       method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${localStorage.getItem('accessToken')}` 
-      },
+     headers: { 'Content-Type': 'application/json', 'Authorization': authToken || '' },
+            
       body: JSON.stringify(body),
     });
 
-    // ПРОВЕРКА НА БИЗНЕС-ОШИБКУ ОТ СЕРВЕРА
-    // Так как ответ может быть массивом [ { workorder_management: ... } ]
-    const errorData = Array.isArray(response) ? response[0] : response;
+    //console.log(response);
+    // 1. Сначала парсим JSON
+const responseData = await response.json();
 
-    if (errorData?.workorder_management?.code === 'exception') {
-      // Выводим текст ошибки напрямую из ответа сервера
-      
+// 2. Обрабатываем бизнес-логику (структура может быть массивом или объектом)
+// Если сервер возвращает массив: [ { workorder_management: {...} } ]
+// Если объект: { workorder_management: {...} }
+const result = Array.isArray(responseData) ? responseData[0] : responseData;
+   if (result?.workorder_management?.code === 'exception') {
+    // Формируем понятный ответ для пользователя чата
+    finalAnswer = `⚠️ **Внимание:** ${result.workorder_management.text}`;
+    
+    return res.json({ 
+        answer: finalAnswer,
+        dataType: "none" 
+    });
+}
 
-      finalAnswer = errorData.workorder_management.text;
-      return res.json({ answer: finalAnswer });
-    }
+const workorderId = responseData[0]?.workorder_management?.workorder_id;
 
         //////
+
+
+    //////
+for (const item of validatedItems) {
+  const body1 = {
+    point: point.stockid,
+    counterparty: counterparty.id,
+    attributes: 0,
+    wholesaleprice: 0,
+    workorder_id: workorderId,
+    units: item.units,
+    product: item.product,
+    price: item.price,
+    price1: item.price1
+  };
+
+  try {
+    const responsedetails = await fetch(`${process.env.BACKEND_URL}/api/workorder/details/insert`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json', 
+        'Authorization': authToken || '' 
+      },
+      body: JSON.stringify(body1),
+    });
+
+    if (!responsedetails.ok) {
+        throw new Error(`Server returned status ${responsedetails.status}`);
+    }
+
+    const responseData1 = await responsedetails.json();
+    const result1 = Array.isArray(responseData1) ? responseData1[0] : responseData1;
+
+    // Проверяем только на негативный сценарий
+    const isNotSuccess = result1?.code !== 'success' && result1?.workorder_management?.code !== 'success';
+
+    if (isNotSuccess) {
+      const errorText = result1?.text || result1?.workorder_management?.text || JSON.stringify(result1);
+      
+      // Возвращаем ответ и ВЫХОДИМ из функции, чтобы не продолжать цикл по остальным товарам
+      return res.json({ answer: `❌ Ошибка при добавлении товара "${item.name}": ${errorText}` });
+    }
+    
+    // Если всё хорошо, цикл просто идет дальше к следующему товару (item)
+
+  } catch (err) {
+    console.error("Fetch error:", err);
+    return res.json({ answer: `❌ Техническая ошибка связи с сервером при добавлении товара "${item.name}".` });
+  }
+}
+    ///////
+
         
         // Формируем тело запроса для вашего API закупки
         // ВАЖНО: На бэкенде вам может понадобиться сопоставить названия (string) с ID
