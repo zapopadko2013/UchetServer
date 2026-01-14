@@ -709,6 +709,7 @@ const response = await groq.chat.completions.create({
 - По умолчанию, если период не указан, используй 'week'.
 - Если пользователь хочет заказать, купить или оформить поступление товара -> вызывай create_purchase_order.
 - Обязательно уточняй название поставщика, точку и список товаров с ценами, если они не указаны.
+- Если пользователь ищет лучшую цену, спрашивает у кого дешевле купить или сравнивает поставщиков -> вызывай find_best_supplier_price.
 `
                 },
                 { role: "user", content: message }
@@ -746,6 +747,27 @@ const response = await groq.chat.completions.create({
         }
     }
 },    
+                //////14.01.2026
+                
+                {
+    type: "function",
+    function: {
+        name: "find_best_supplier_price",
+        description: "Поиск поставщика с самой низкой ценой на конкретный товар на основе истории закупок или прайс-листов.",
+        parameters: {
+            type: "object",
+            properties: {
+                query: { 
+                    type: "string", 
+                    description: "Название товара для поиска лучшей цены" 
+                }
+            },
+            required: ["query"]
+        }
+    }
+},
+
+                //////14.01.2026
 
                 //////09.01.2026
 
@@ -927,6 +949,9 @@ const response = await groq.chat.completions.create({
             let st = t.status.norm;
                         if (units <= 5) st = t.status.low;
                         if (units >= 15) st = t.status.high;
+
+            
+
             return { 
               name: item.productname,
               stock: units,
@@ -960,6 +985,9 @@ const response = await groq.chat.completions.create({
 
             if (found.length > 0) {
                 // Заполняем problematicItems найденными товарами, чтобы они ушли в таблицу
+                
+               //console.log(found);
+                
                 problematicItems = found;
 
                 //finalAnswer = `📦 **Результаты поиска по остаткам ("${args.query}"):**\n\n` +
@@ -1314,6 +1342,77 @@ const anomaliesText = anomalies.length > 0
                 } */
 
               ///////
+
+
+        ///////14.01.2026
+        
+    if (functionName === "find_best_supplier_price") {
+    try {
+        const searchQuery = args.query ? args.query.trim() : "";
+
+        // Используем ваш SQL-запрос с поиском по p.name
+        const sql = `
+            SELECT
+                p.name AS product_name,
+                cp.name AS counterparty_name,
+                cp.address,
+                inv.invoicedate,
+                l.purchaseprice AS min_price
+            FROM invoicelist l
+            INNER JOIN invoices inv ON l.invoice = inv.invoicenumber AND l.company = inv.company
+            INNER JOIN products p ON p.id = l.stock AND p.company = l.company
+            INNER JOIN counterparties cp ON cp.id = inv.counterparty AND cp.company = inv.company
+            WHERE 
+                p.name ILIKE ?           -- Поиск по названию
+                AND inv.type = 2         -- Приходная накладная
+                AND inv.status = 'ACCEPTED'
+                AND inv.invoicedate::date BETWEEN CURRENT_DATE - INTERVAL '6 months' AND CURRENT_DATE
+            ORDER BY l.purchaseprice ASC 
+            LIMIT 1;
+        `;
+
+        // Выполняем запрос через knex (предполагается, что knex доступен в файле)
+        const result = await knex.raw(sql, [`%${searchQuery}%`]);
+        const bestOffer = result.rows[0];
+
+        if (bestOffer) {
+            dataType = "stock1"; // Используем формат для отображения в таблице
+            
+            // Формируем ответ для чата
+            finalAnswer = `✅ **Лучшая цена нашла!**\n\n` +
+                `Товар: **${bestOffer.product_name}**\n` +
+                `Поставщик: **${bestOffer.counterparty_name}**\n` +
+                `💰 Мин. цена закупки: **${parseFloat(bestOffer.min_price).toLocaleString()}**\n` +
+                `📅 Дата последней поставки: ${new Date(bestOffer.invoicedate).toLocaleDateString('ru-RU')}\n` +
+                `📍 Адрес: ${bestOffer.address || 'не указан'}\n\n` +
+                `Это самая выгодная цена по вашим закупкам за последние 6 месяцев.`;
+
+            // Данные для таблицы под чатом
+            problematicItems = [];
+            /* problematicItems = [{
+                name: String(bestOffer.product_name || searchQuery),
+                brand: String(bestOffer.counterparty_name || "Не указан"),
+                category: "Закупка",
+                stock: 0, 
+                price: parseFloat(bestOffer.min_price).toLocaleString(),
+                purchaseprice: Number(bestOffer.min_price) || 0,
+                status: "✅ Цена найдена", // Чтобы includes('Дефицит') не падал
+                point: String(bestOffer.address || "Адрес не указан")
+            }]; */
+        } else {
+            finalAnswer = `К сожалению, по запросу "${searchQuery}" история закупок пуста.`;
+            dataType = "none";
+            problematicItems = [];
+        }
+    } catch (e) {
+        console.error("Ошибка в find_best_supplier_price:", e);
+        finalAnswer = "Произошла ошибка при поиске лучшей цены в базе данных.";
+    }
+}
+        
+        ///////14.01.2026
+
+
 
             ///////09.01.2026
 
