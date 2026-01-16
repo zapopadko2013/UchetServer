@@ -428,7 +428,16 @@ router.post("/chat", async (req, res) => {
         qty: "шт.",
         buy: "Закуп",
         sell: "Продажа",
-        processingErr: "Ошибка при обработке заказа."
+        processingErr: "Ошибка при обработке заказа.",
+        bestPriceFound: "✅ **Лучшая цена найдена!**",
+bestPriceProduct: "Товар",
+bestPriceVendor: "Поставщик",
+bestPriceMin: "Мин. цена закупки",
+bestPriceDate: "Дата последней поставки",
+bestPriceAddress: "Адрес",
+bestPriceNotSpecified: "не указан",
+bestPriceDesc: "Это самая выгодная цена по вашим закупкам за последние 6 месяцев.",
+bestPriceNotFound: (q) => `К сожалению, по запросу "${q}" история закупок пуста.`,
         },
         kk: {
             stockResults: "Нәтижелер",
@@ -482,7 +491,16 @@ router.post("/chat", async (req, res) => {
         qty: "дана",
         buy: "Сатып алу",
         sell: "Сату",
-        processingErr: "Тапсырысты өңдеу кезінде қате кетті."
+        processingErr: "Тапсырысты өңдеу кезінде қате кетті.",
+        bestPriceFound: "✅ **Ең жақсы баға табылды!**",
+bestPriceProduct: "Тауар",
+bestPriceVendor: "Жеткізуші",
+bestPriceMin: "Ең төменгі сатып алу бағасы",
+bestPriceDate: "Соңғы жеткізілім күні",
+bestPriceAddress: "Мекенжайы",
+bestPriceNotSpecified: "көрсетілмеген",
+bestPriceDesc: "Бұл соңғы 6 айдағы сатып алулар бойынша ең тиімді баға.",
+bestPriceNotFound: (q) => `Өкінішке орай, "${q}" сұранысы бойынша сатып алу тарихы бос.`,
         },
         en: {
             stockResults: "Results for",
@@ -536,7 +554,16 @@ router.post("/chat", async (req, res) => {
     qty: "pcs", // "pieces" (штуки)
     buy: "Cost", // Цена закупки
     sell: "Price", // Цена продажи
-    processingErr: "Error processing the order."
+    processingErr: "Error processing the order.",
+    bestPriceFound: "✅ **Best price found!**",
+bestPriceProduct: "Product",
+bestPriceVendor: "Supplier",
+bestPriceMin: "Min purchase price",
+bestPriceDate: "Last delivery date",
+bestPriceAddress: "Address",
+bestPriceNotSpecified: "not specified",
+bestPriceDesc: "This is the most favorable price from your purchases over the last 6 months.",
+bestPriceNotFound: (q) => `Unfortunately, no purchase history was found for "${q}".`,
         }
     };
 
@@ -1379,13 +1406,20 @@ const anomaliesText = anomalies.length > 0
             dataType = "stock1"; // Используем формат для отображения в таблице
             
             // Формируем ответ для чата
-            finalAnswer = `✅ **Лучшая цена нашла!**\n\n` +
+            /* finalAnswer = `✅ **Лучшая цена !**\n\n` +
                 `Товар: **${bestOffer.product_name}**\n` +
                 `Поставщик: **${bestOffer.counterparty_name}**\n` +
                 `💰 Мин. цена закупки: **${parseFloat(bestOffer.min_price).toLocaleString()}**\n` +
                 `📅 Дата последней поставки: ${new Date(bestOffer.invoicedate).toLocaleDateString('ru-RU')}\n` +
                 `📍 Адрес: ${bestOffer.address || 'не указан'}\n\n` +
-                `Это самая выгодная цена по вашим закупкам за последние 6 месяцев.`;
+                `Это самая выгодная цена по вашим закупкам за последние 6 месяцев.`; */
+                finalAnswer = `${t.bestPriceFound}\n\n` +
+                `**${t.bestPriceProduct}:** ${bestOffer.product_name}\n` +
+                `**${t.bestPriceVendor}:** ${bestOffer.counterparty_name}\n` +
+                `💰 **${t.bestPriceMin}:** ${parseFloat(bestOffer.min_price).toLocaleString()}\n` +
+                `📅 **${t.bestPriceDate}:** ${new Date(bestOffer.invoicedate).toLocaleDateString('ru-RU')}\n` +
+                `📍 **${t.bestPriceAddress}:** ${bestOffer.address || t.bestPriceNotSpecified}\n\n` +
+                `${t.bestPriceDesc}`;
 
             // Данные для таблицы под чатом
             problematicItems = [];
@@ -1400,13 +1434,15 @@ const anomaliesText = anomalies.length > 0
                 point: String(bestOffer.address || "Адрес не указан")
             }]; */
         } else {
-            finalAnswer = `К сожалению, по запросу "${searchQuery}" история закупок пуста.`;
+            //finalAnswer = `К сожалению, по запросу "${searchQuery}" история закупок пуста.`;
+            finalAnswer = typeof t.bestPriceNotFound === 'function' ? t.bestPriceNotFound(searchQuery) : t.bestPriceNotFound;
             dataType = "none";
             problematicItems = [];
         }
     } catch (e) {
         console.error("Ошибка в find_best_supplier_price:", e);
-        finalAnswer = "Произошла ошибка при поиске лучшей цены в базе данных.";
+        //finalAnswer = "Произошла ошибка при поиске лучшей цены в базе данных.";
+        finalAnswer = i18n[lang]?.processingErr || "Error";
     }
 }
         

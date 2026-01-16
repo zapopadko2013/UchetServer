@@ -60,12 +60,24 @@ accessToken = (user) => {
    accessTokenUser.locales = encrypt( JSON.stringify(user.locales));	
   ////03.10.2023
   
+  ////16.01.2026
+  /*
   accessTokenUser.refreshToken = encrypt(
     jwt.sign({ id: user.id }, process.env.JWT_KEY, { expiresIn: "2h" })
   );
   return jwt.sign(accessTokenUser, process.env.JWT_KEY, {
     expiresIn: "2h",
   });
+  */
+
+  accessTokenUser.refreshToken = encrypt(
+    jwt.sign({ id: user.id }, process.env.JWT_KEY, { expiresIn: "14h" })
+  );
+  return jwt.sign(accessTokenUser, process.env.JWT_KEY, {
+    expiresIn: "14h",
+  });
+
+  ////16.01.2026
 };
 /*
 accessRevisionToken = user => {
