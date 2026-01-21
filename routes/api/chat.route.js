@@ -359,10 +359,179 @@ const groq = new OpenAI({
     baseURL: "https://api.groq.com/openai/v1"
 });
 
+async function saveToHistory(companyId, userMessage, aiAnswer) {
+    try {
+        // Пытаемся найти последнюю активную сессию за последние 2 часа
+        const activeSession = await knex('chat_sessions')
+            .where('company_id', companyId)
+            .where('updated_at', '>', knex.raw("NOW() - INTERVAL '2 hours'"))
+            .orderBy('updated_at', 'desc')
+            .first();
+
+        if (activeSession) {
+            // Дополняем существующую сессию
+            await knex('chat_sessions')
+                .where('id', activeSession.id)
+                .update({
+                    messages: knex.raw('messages || ?::jsonb', [JSON.stringify([{
+                        step: activeSession.messages.length + 1,
+                        question: userMessage,
+                        answer: aiAnswer,
+                        timestamp: new Date()
+                    }])]),
+                    updated_at: new Date()
+                });
+        } else {
+            // Создаем новую сессию
+            await knex('chat_sessions').insert({
+                company_id: companyId,
+                messages: JSON.stringify([{
+                    step: 1,
+                    question: userMessage,
+                    answer: aiAnswer,
+                    timestamp: new Date()
+                }])
+            });
+        }
+    } catch (err) {
+        console.error("Ошибка сохранения истории:", err);
+    }
+}
+
+////21.01.2026
+router.get("/history", async (req, res) => {
+    const company = req.userData.company;
+    try {
+        const history = await knex('chat_sessions')
+            .where('company_id', company)
+            .orderBy('updated_at', 'desc')
+            .select('id', 'messages', 'updated_at');
+        
+        res.json(history);
+    } catch (err) {
+        res.status(500).json({ error: "Ошибка загрузки истории" });
+    }
+});
+
+router.get("/admin/support-requests", async (req, res) => {
+    try {
+        const userCompany = req.userData.company;
+        const targetCompany = req.query.targetCompany || userCompany;
+
+        // 1. Получаем сессии (без JOIN, так как данные зашифрованы)
+        const pendingRequests = await knex('chat_sessions')
+            .andWhereRaw('messages @> ?', [JSON.stringify([{ isSupportRequest: true }])])
+            .select('id', 'company_id', 'messages', 'updated_at')
+            .orderBy('updated_at', 'desc');
+
+        // 2. Получаем список всех уникальных ID компаний из найденных сессий
+        const companyIds = [...new Set(pendingRequests.map(s => s.company_id))];
+
+        // 3. Загружаем данные этих компаний из таблицы компаний
+        const companies = await knex('companies')
+            .whereIn('id', companyIds)
+            .select('id', 'name');
+
+        // 4. Форматируем результат с дешифровкой
+        const formattedRequests = pendingRequests.map(session => {
+            // Ищем компанию в загруженном списке
+            const companyData = companies.find(c => c.id === session.company_id);
+            
+            // Расшифровываем название, если компания найдена
+            let decryptedCompanyName = "Неизвестная компания";
+            if (companyData && companyData.name) {
+                try {
+                    decryptedCompanyName = helpers.decrypt(companyData.name);
+                } catch (e) {
+                    console.error("Ошибка дешифровки имени компании:", e);
+                    decryptedCompanyName = "Ошибка данных";
+                }
+            }
+
+            const supportMessages = session.messages.filter(m => m.isSupportRequest === true);
+            
+            return {
+                sessionId: session.id,
+                companyId: session.company_id,
+                company: decryptedCompanyName, // Расшифрованное имя
+                date: session.updated_at,
+                questions: supportMessages.map(m => ({
+                    step: m.step,
+                    question: m.question,
+                    answer_bot: m.answer,
+                    specialistAnswer: m.specialistAnswer,
+                    time: m.timestamp
+                }))
+            };
+        });
+
+        res.json(formattedRequests);
+    } catch (err) {
+        console.error("Support Search Error:", err);
+        res.status(500).json({ error: "Ошибка при поиске запросов" });
+    }
+});
+
+router.post("/admin/reply", async (req, res) => {
+    // 1. Проверяем, есть ли у пользователя права глобального админа
+    // (Например, через роль в токене или специальный ID компании)
+    //const isAdmin = req.userData.role === 'admin' || req.userData.company === 1; 
+
+    const { sessionId, step, answerText, companyId } = req.body; 
+    
+    if (!sessionId || !step || !answerText) {
+        return res.status(400).json({ error: "Недостаточно данных для ответа" });
+    }
+
+    try {
+        const now = new Date().toISOString();
+
+        // 2. Формируем запрос
+        let query = knex('chat_sessions').where({ id: sessionId });
+
+        // 3. Если НЕ глобальный админ — ограничиваем его только его компанией
+        //if (!isAdmin) {
+            query = query.andWhere('company_id', companyId);
+        //}
+
+        //console.log('Данные для обновления:', { sessionId, step, company: companyId });
+
+        const updatedRows = await query.update({
+            messages: knex.raw(`
+                jsonb_set(
+                    jsonb_set(
+                        messages, 
+                        '{${step - 1}, specialistAnswer}', 
+                        ?::jsonb
+                    ),
+                    '{${step - 1}, answeredAt}', 
+                    ?::jsonb
+                )
+            `, [JSON.stringify(answerText), JSON.stringify(now)]),
+            updated_at: now
+        });
+
+        if (updatedRows === 0) {
+            return res.status(404).json({ error: "Запрос не найден или у вас нет прав на ответ" });
+        }
+
+        res.json({ 
+            success: true, 
+            answeredAt: now,
+            message: "Ответ специалиста успешно сохранен" 
+        });
+    } catch (err) {
+        console.error("🔥 Error saving specialist answer:", err);
+        res.status(500).json({ error: "Техническая ошибка при сохранении ответа" });
+    }
+});
+
+//////21.01.2026
+
 router.post("/chat", async (req, res) => {
 
    
-    const { message, lang = 'ru' } = req.body;
+    const { message, lang = 'ru', sessionId } = req.body;
     const authToken = req.headers['authorization'];
     
     const company = req.userData.company;
@@ -371,12 +540,14 @@ router.post("/chat", async (req, res) => {
     let salesData = []; 
     let dataType = "none";
     let periodNameGlobal ;
+    let isSupport = false;
 
     /////
 
     // Словарь для системных ответов сервера
     const i18n = {
         ru: {
+            techvopros:"🤖 Ваш вопрос по работе программы принят. Наши специалисты рассмотрят его и дадут ответ в ближайшее время.",
             stockResults: "Результаты по",
             searchTitle: "📦 Результаты поиска по остаткам",
             notFound: "товаров не найдено",
@@ -440,6 +611,7 @@ bestPriceDesc: "Это самая выгодная цена по вашим за
 bestPriceNotFound: (q) => `К сожалению, по запросу "${q}" история закупок пуста.`,
         },
         kk: {
+            techvopros:"🤖 Бағдарлама бойынша сұрағыңыз қабылданды. Біздің мамандар оны қарастырып, жақын арада жауап береді.",
             stockResults: "Нәтижелер",
             searchTitle: "📦 Қалдықтар бойынша іздеу нәтижелері",
             notFound: "тауар табылмады",
@@ -503,6 +675,7 @@ bestPriceDesc: "Бұл соңғы 6 айдағы сатып алулар бой�
 bestPriceNotFound: (q) => `Өкінішке орай, "${q}" сұранысы бойынша сатып алу тарихы бос.`,
         },
         en: {
+            techvopros:"🤖 Your question regarding the software has been received. Our specialists will review it and provide an answer shortly.",
             stockResults: "Results for",
             searchTitle: "📦 Stock search results",
             notFound: "no items found",
@@ -569,7 +742,86 @@ bestPriceNotFound: (q) => `Unfortunately, no purchase history was found for "${q
 
     const t = i18n[lang] || i18n.ru;
 
+
     //////
+
+
+    ////////
+
+    // ФУНКЦИЯ СОХРАНЕНИЯ С ПРОВЕРКОЙ ПО ID
+   /*  const saveChat = async (aiAnswer) => {
+        try {
+            const existingSession = await knex('chat_sessions')
+                .where({ id: sessionId, company_id: company })
+                .first();
+
+            if (existingSession) {
+                // Если сессия с таким UUID уже есть — добавляем сообщение в массив
+                await knex('chat_sessions')
+                    .where('id', sessionId)
+                    .update({
+                        messages: knex.raw('messages || ?::jsonb', [JSON.stringify({
+                            step: existingSession.messages.length + 1,
+                            question: message,
+                            answer: aiAnswer,
+                            timestamp: new Date()
+                        })]),
+                        updated_at: new Date()
+                    });
+            } else {
+                // Если сессии нет — создаем новую с этим UUID
+                await knex('chat_sessions').insert({
+                    id: sessionId, // Используем UUID с фронтенда
+                    company_id: company,
+                    messages: JSON.stringify([{
+                        step: 1,
+                        question: message,
+                        answer: aiAnswer,
+                        timestamp: new Date()
+                    }])
+                });
+            }
+        } catch (e) {
+            console.error("History Save Error:", e);
+        }
+    }; */
+
+    const saveChat = async (aiAnswer, isSupport = false) => {
+    try {
+        const existingSession = await knex('chat_sessions')
+            .where({ id: sessionId, company_id: company })
+            .first();
+
+        const newMessage = {
+            step: existingSession ? existingSession.messages.length + 1 : 1,
+            question: message,
+            answer: aiAnswer,
+            isSupportRequest: isSupport, // Сохраняем статус в базу
+            timestamp: new Date()
+        };
+
+        if (existingSession) {
+            await knex('chat_sessions')
+                .where('id', sessionId)
+                .update({
+                    messages: knex.raw('messages || ?::jsonb', [JSON.stringify(newMessage)]),
+                    updated_at: new Date()
+                });
+        } else {
+            await knex('chat_sessions').insert({
+                id: sessionId,
+                company_id: company,
+                messages: JSON.stringify([newMessage]),
+                created_at: new Date(),
+                updated_at: new Date()
+            });
+        }
+    } catch (e) {
+        console.error("History Save Error:", e);
+    }
+};
+
+    ////////
 
 
     try {
@@ -737,11 +989,31 @@ const response = await groq.chat.completions.create({
 - Если пользователь хочет заказать, купить или оформить поступление товара -> вызывай create_purchase_order.
 - Обязательно уточняй название поставщика, точку и список товаров с ценами, если они не указаны.
 - Если пользователь ищет лучшую цену, спрашивает у кого дешевле купить или сравнивает поставщиков -> вызывай find_best_supplier_price.
+- Если пользователь спрашивает как работать в программе, просит инструкцию или задает технический вопрос -> вызывай get_program_support.
 `
                 },
                 { role: "user", content: message }
             ],
             tools: [
+
+                //////21.01.2026
+
+                {
+    type: "function",
+    function: {
+        name: "get_program_support",
+        description: "Используй эту функцию, если пользователь задает вопросы по работе программы, просит инструкции, сообщает об ошибках или спрашивает как пользоваться интерфейсом.",
+        parameters: {
+            type: "object",
+            properties: {
+                question: { type: "string", description: "Суть вопроса пользователя" }
+            },
+            required: ["question"]
+        }
+    }
+},
+
+                //////21.01.2026
                 
                 //////09.01.2026
 
@@ -846,6 +1118,21 @@ const response = await groq.chat.completions.create({
 
         // Если ИИ просто ответил текстом без вызова функций
         if (!aiMsg.tool_calls || aiMsg.tool_calls.length === 0) {
+
+            ///////
+
+const botResponseData = {
+    text: finalAnswer|| aiMsg.content, // сам текст ответа
+    dataType: dataType,
+    stockData: problematicItems,
+    salesData: salesData
+}; 
+            // Вызываем перед отправкой ответа
+    await saveChat(botResponseData);
+    
+
+    ////////
+
             return res.json({ 
                 answer: aiMsg.content,
                 dataType: "none" 
@@ -1371,6 +1658,30 @@ const anomaliesText = anomalies.length > 0
               ///////
 
 
+    ////////21.01.2026
+
+    if (functionName === "get_program_support") {
+    finalAnswer = t.techvopros;
+    dataType = "none";
+isSupport = true;
+
+}
+
+    /* if (functionName === "get_program_support") {
+    // Вы можете взять готовый перевод из вашего объекта t, если добавили его туда
+    // Например: finalAnswer = t.supportTicketCreated;
+    
+    finalAnswer = `${t.techvopros}\n\n` ;
+    
+    dataType = "none";
+    
+    // Опционально: здесь можно отправить уведомление в Telegram админу или сохранить в БД в отдельную таблицу тикетов
+    // await notifySupport(message, company); 
+} */
+
+    ////////21.01.2026
+
+
         ///////14.01.2026
         
     if (functionName === "find_best_supplier_price") {
@@ -1586,6 +1897,18 @@ const result = Array.isArray(responseData) ? responseData[0] : responseData;
     //finalAnswer = `⚠️ **Внимание:** ${result.workorder_management.text}`;
     finalAnswer = `${t.attention} ${result.workorder_management.text}`;
 
+    ///////
+    const botResponseData = {
+    text: finalAnswer, // сам текст ответа
+    dataType: dataType,
+    stockData: problematicItems,
+    salesData: salesData
+}; 
+            // Вызываем перед отправкой ответа
+    await saveChat(botResponseData);
+
+    ////////
+
     return res.json({ 
         answer: finalAnswer,
         dataType: "none" 
@@ -1637,6 +1960,13 @@ for (const item of validatedItems) {
       // Возвращаем ответ и ВЫХОДИМ из функции, чтобы не продолжать цикл по остальным товарам
      // return res.json({ answer: `❌ Ошибка при добавлении товара "${item.name}": ${errorText}` });
      finalAnswer = t.errDetail(item.name, errorText);
+
+     ///////
+
+            // Вызываем перед отправкой ответа
+    //await saveChat(finalAnswer || aiMsg.content);
+
+    ////////
   
   return res.json({ answer: finalAnswer });
     }
@@ -2029,7 +2359,24 @@ if (functionName === "get_sales_analytics") {
                 ]
             });
  */
-            
+
+            ///////
+
+            // Вызываем перед отправкой ответа
+    //await saveChat(finalAnswer || aiMsg.content);
+// Формируем полный объект ответа
+const botResponseData = {
+    text: finalAnswer, // сам текст ответа
+    dataType: dataType,
+    stockData: problematicItems,
+    salesData: salesData
+};
+
+// Вызываем вашу функцию сохранения
+// Передаем объект целиком и флаг isSupport (например, если это запрос в поддержку)
+await saveChat(botResponseData,isSupport);
+
+    ////////
             
             return res.json({ 
                 //answer: finalResponse.choices[0].message.content,
