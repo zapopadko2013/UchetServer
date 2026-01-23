@@ -483,8 +483,24 @@ router.post("/admin/reply", async (req, res) => {
         return res.status(400).json({ error: "Недостаточно данных для ответа" });
     }
 
+    const now = new Date().toISOString();
+
+    ////23.01.2026
+    //console.log(sessionId);
+
+    if (sessionId==="auto-stock-session") {
+
+       return  res.status(200).json({ 
+            success: true, 
+            answeredAt: now,
+            message: "Ответ специалиста не нужно сохранять" 
+        });
+
+    }
+    ////23.01.2026
+
     try {
-        const now = new Date().toISOString();
+        
 
         // 2. Формируем запрос
         let query = knex('chat_sessions').where({ id: sessionId });
@@ -788,6 +804,17 @@ bestPriceNotFound: (q) => `Unfortunately, no purchase history was found for "${q
 
     const saveChat = async (aiAnswer, isSupport = false) => {
     try {
+
+        ////23.01.2026
+    //console.log(sessionId);
+
+    if (sessionId==="auto-stock-session") {
+
+       return  ;
+
+    }
+    ////23.01.2026
+
         const existingSession = await knex('chat_sessions')
             .where({ id: sessionId, company_id: company })
             .first();
@@ -972,9 +999,10 @@ console.log(response1); */
         const aiMsg = response.choices[0].message;
  */
 
-
+const MODEL_NAME = "llama-3.1-8b-instant";
 const response = await groq.chat.completions.create({
-            model: "llama-3.3-70b-versatile",
+            //model: "llama-3.3-70b-versatile",
+            model: MODEL_NAME,
             // Снижаем температуру для стабильности вызова функций
             temperature: 0.1, 
             messages: [

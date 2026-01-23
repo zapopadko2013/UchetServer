@@ -121,6 +121,10 @@ router.get('/', (req, res) => {
 			certificateseries: user.certificateseries,
 			certificatedate: user.certificatedateform,
 			wholesale: user.wholesale
+			//////23.01.2026
+			,avtoupdatestocktime: user.avtoupdatestocktime
+			,avtoupdatestockflag:  user.avtoupdatestockflag
+			//////23.01.2026
 		};
 		// console.log(user);
 		res.status(200).json(userResp);
@@ -168,7 +172,11 @@ router.post('/manage', (req, res) => {
 			certificatenum: req.body.company.certificatenum,
 			certificateseries: req.body.company.certificateseries,
 			certificatedate: req.body.company.certificatedate,
-			wholesale: req.body.company.wholesale		
+			wholesale: req.body.company.wholesale
+			//////23.01.2026
+			,avtoupdatestocktime: req.body.company.avtoupdatestocktime
+			,avtoupdatestockflag:  req.body.company.avtoupdatestockflag
+			//////23.01.2026		
 		}
 	};
 
