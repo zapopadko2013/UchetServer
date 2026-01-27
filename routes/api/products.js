@@ -898,7 +898,8 @@ router.get("/getProductByBarcodeLocalNow", (req, res) => {
 
 ////////13.10,2025
 
-router.get("/getProductByBarcodeLocal", (req, res) => {
+/////27.01.2026
+/* router.get("/getProductByBarcodeLocal", (req, res) => {
   let company = req.userData.company;
   if (company === "15" && req.query.company) company = req.query.company;
   const barcode = req.query.barcode;
@@ -1065,7 +1066,94 @@ router.get("/getProductByBarcodeLocal", (req, res) => {
   }).catch((err) => {
     return res.status(500).json(err);
   });
+}); */
+
+router.get("/getProductByBarcodeLocal", async (req, res) => {
+  let company = req.userData.company;
+  if (company === "15" && req.query.company) company = req.query.company;
+  
+  const barcode = req.query.barcode;
+  const userId = req.userData.id;
+  const flagnkt = req.query.flagnkt;
+
+  // Выносим основной SQL запрос в переменную, чтобы не дублировать код
+  const PRODUCT_QUERY = `
+    SELECT   
+      "categories"."id" as "categoryid", "categories"."name" as "category", 
+      "brands"."brand", "brands"."id" as "brandid", 
+      "products"."code", "products"."name", "products"."id", "products"."cnofeacode", 
+      "products"."piece", "products"."pieceinpack", "products"."unitsprid", 
+      "products"."isstaticprice", "products"."taxid", "products"."bonusrate",
+      "products"."details", 0 as attributes,
+      "product_static_prices"."price" as "staticprice", 
+      "storeprices"."price", "storeprices"."pieceprice", "storeprices"."wholesale_price", 
+      "unit_spr"."shortname" as "unitspr_shortname", "unit_spr"."name" as "unitspr_name", 
+      (select pa.purchaseprice from product_accounting as pa where pa.company = "products".company and pa.product = "products"."id" and pa."date" = (select max("date") from product_accounting where company = "products".company and product = "products"."id") limit 1) as lastpurchaseprice, 
+      (case when m.rate is null then 0 else m.rate end) as rate, 
+      (case when m.sum is null then 0 else m.sum end) as sum,
+      products."attributes", products.details,
+      (select jsonb_agg(jsonb_build_object('attribute_id',a1.attribute, 'attribute_name', attr1.values, 'attribute_value', a1.value, 'attribute_listcode', a1.listcode, 'attribute_format', attr1.format)) from attrlist as a1 inner join attributenames as attr1 on (attr1.id=a1.attribute) where a1.listcode=products.attributes limit 1) as attributescaption,
+      (select jsonb_agg(jsonb_build_object('attribute_id',a1.attribute, 'attribute_name', attr1.values, 'attribute_value', a1.value, 'attribute_listcode', a1.listcode, 'attribute_format', attr1.format)) from attrlist as a1 inner join attributenames as attr1 on (attr1.id=a1.attribute) where a1.listcode=products.details limit 1) as detailscaption  
+    FROM "products" 
+    left join "stockcurrent" on "stockcurrent"."product" = "products"."id" and "stockcurrent"."company" = "products"."company" 
+    left join "categories" on "categories"."id" = "products"."category" 
+    left join "storeprices" on "storeprices"."stock" = "stockcurrent"."id" and "storeprices"."company" = "stockcurrent"."company" 
+    left join "brands" on "brands"."id" = "products"."brand" 
+    left join "margin_plan" as "m" on "m"."object" = "products"."id" and "m"."type" = 1 and "m"."company" = "products"."company" and "m"."active" = true
+    left join "unit_spr" on "unit_spr"."id" = "products"."unitsprid" 
+    left join "product_static_prices" on "products"."id" = "product_static_prices"."product" and "product_static_prices"."company" = "products"."company" 
+    left join "products_barcode" on "products"."id" = "products_barcode"."product" and "products"."company"="products_barcode"."company"
+    WHERE (products.code = ? OR products_barcode.barcode = ?)
+      AND products.deleted = false
+      AND products.company = ?
+      AND products.category <> -1
+    LIMIT 1
+  `;
+
+  try {
+    // 1. Пытаемся найти локально
+    const localResult = await knex.raw(PRODUCT_QUERY, [barcode, barcode, company]);
+
+    if (localResult.rows.length > 0) {
+      return res.status(200).json(localResult.rows[0]);
+    }
+
+    // 2. Если не нашли и разрешен НКТ
+    if (flagnkt === "true") {
+      const nktResponse = await fetch(`https://nationalcatalog.kz/gwp/portal/api/v1/products/${barcode}`, {
+        headers: { 'X-API-KEY': process.env.NKT_API, 'Accept': 'application/json' }
+      });
+
+      if (nktResponse.ok) {
+        const nktProduct = await nktResponse.json();
+        const t1 = { nkt: nktProduct, user: userId, company: company };
+
+        // Создаем товар через функцию PostgreSQL
+        const dbResult = await knex.raw("select productspr_create_nkt(?) as result", [JSON.stringify(t1)]);
+        const functionResult = dbResult.rows[0].result;
+
+        if (functionResult && functionResult.code === "success") {
+          // ТОВАР СОЗДАН. Теперь достаем его тем же огромным запросом, что и в начале
+          // Это позволит вернуть фронтенду полный объект со всеми джойнами (категории, бренды и т.д.)
+          const newProductResult = await knex.raw(PRODUCT_QUERY, [barcode, barcode, company]);
+          
+          if (newProductResult.rows.length > 0) {
+            return res.status(200).json(newProductResult.rows[0]);
+          }
+        }
+      }
+    }
+
+    // 3. Если ничего не найдено
+    return res.status(404).json({ message: "productNotFound" });
+
+  } catch (err) {
+    console.error("Error in getProductByBarcodeLocal:", err);
+    return res.status(500).json({ error: "Internal Server Error", details: err.message });
+  }
 });
+
+/////27.01.2026
 
 router.get("/getProductById", (req, res) => {
   let company = req.userData.company;
@@ -1499,7 +1587,8 @@ router.get("/barcode/old", (req, res) => {
       });
 });
 
-router.get("/barcode", (req,res) => {
+//////26.01.2026
+/* router.get("/barcode", (req,res) => {
 
   knex.raw(`select p1.id, name,
 
@@ -1528,6 +1617,162 @@ router.get("/barcode", (req,res) => {
   })
 
 });
+ */
+
+/* router.get("/barcode", async (req, res) => {
+  const barcode = req.query.barcode;
+  const companyId = req.userData.company;
+
+  const user = req.userData.id;
+  const company = req.userData.company;
+
+  try {
+    // 1. Поиск в вашей базе данных (используем параметры ?, чтобы избежать SQL-инъекций)
+    const localResult = await knex.raw(`
+      select p1.id, name, ? as code
+      from products p1
+      left join products_barcode p2 on (p1.id=p2.product and p1.company=p2.company)
+      where (code = ? or barcode = ?)
+      and p1.company = ?
+      and not deleted 
+      limit 1
+    `, [barcode, barcode, barcode, companyId]);
+
+    // Если нашли у себя — возвращаем сразу
+    if (localResult.rows.length > 0) {
+      return res.status(200).json(localResult.rows[0]);
+    }
+
+    // 2. Если у себя не нашли — идем во внешний API Национального каталога
+    console.log(`Запрос в НКТ для штрихкода: ${barcode}`);
+
+    const NKT_KEY = process.env.NKT_API ;
+    
+    const nktResponse = await fetch(`https://nationalcatalog.kz/gwp/portal/api/v1/products/${barcode}`, {
+      method: 'GET',
+      headers: {
+        'X-API-KEY': NKT_KEY,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (nktResponse.ok) {
+      const nktProduct = await nktResponse.json();
+
+    
+
+      const nkt=nktProduct;
+
+      const t1={nkt,user,company};
+      //console.log(t1);
+      
+      // Возвращаем объект в формате вашей БД, но с id: null
+     
+
+      knex
+    .raw("select productspr_create_nkt(?)", [nkt])
+    .then((result) => {
+
+      return res.status(200).json({'id': result.rows[0].productspr_create.code, 'name': nkt.nameRu, 'code': barcode});
+
+    })
+    .catch((err) => {
+      console.log(err.stack);
+      return res.status(500).json(err);
+    }); 
+    }
+
+    // 3. Если и там нет
+    return res.status(404).json({ message: "Товар не найден ни в базе, ни в НКТ" });
+
+  } catch (err) {
+    console.error("Ошибка в /barcode:", err);
+    return res.status(500).json({ error: "Ошибка при поиске штрихкода" });
+  }
+}); */
+
+router.get("/barcode", async (req, res) => {
+  const barcode = req.query.barcode;
+  const companyId = req.userData.company;
+  const userId = req.userData.id;
+  const flagnkt=req.query.flagnkt;
+
+  //console.log(companyId);
+  //console.log(userId);
+
+  try {
+    // 1. Поиск локально
+    const localResult = await knex.raw(`
+      select p1.id, name, ? as code
+      from products p1
+      left join products_barcode p2 on (p1.id=p2.product and p1.company=p2.company)
+      where (code = ? or barcode = ?) and p1.company = ? and not deleted limit 1
+    `, [barcode, barcode, barcode, companyId]);
+
+    if (localResult.rows.length > 0) {
+      return res.status(200).json(localResult.rows[0]);
+    }
+
+    if (flagnkt === "true") {
+    // 2. Поиск в НКТ
+    const nktResponse = await fetch(`https://nationalcatalog.kz/gwp/portal/api/v1/products/${barcode}`, {
+      headers: { 'X-API-KEY': process.env.NKT_API, 'Accept': 'application/json' }
+    });
+
+    if (nktResponse.ok) {
+      const nktProduct = await nktResponse.json();
+      const t1 = { nkt: nktProduct, user: userId, company: companyId };
+
+      // ВАЖНО: используем await, чтобы Node.js дождался записи в базу
+      const dbResult = await knex.raw("select productspr_create_nkt(?) as result", [JSON.stringify(t1)]);
+
+// 1. Проверяем, вернула ли база хоть что-то
+if (!dbResult || !dbResult.rows || dbResult.rows.length === 0) {
+    throw new Error("База данных не вернула ответ");
+}
+
+// 2. Получаем данные из колонки 'result' (так называется ваш OUT параметр)
+const functionResult = dbResult.rows[0].result; 
+
+//console.log(functionResult);
+
+if (!functionResult) {
+    throw new Error("Поле 'result' пустое в ответе функции");
+}
+
+// 3. Теперь безопасно проверяем код ответа из SQL функции
+if (functionResult.code === "success") {
+    return res.status(200).json({
+        id: functionResult.text, // В вашей функции ID лежит в поле 'text'
+        name: nktProduct.nameRu,
+        code: barcode
+    });
+} else {
+    // Если SQL функция вернула 'exception' или 'internal_error'
+    return res.status(400).json(functionResult);
+}
+
+    }
+
+    // 3. Если ничего не помогло (теперь выполнится только если nktResponse не ok)
+    return res.status(404).json({ message: "Товар не найден" });
+ 
+  }
+  else
+    return res.status(404).json({ message: "Товар не найден" });
+
+  } catch (err) {
+    console.error("Критическая ошибка:", err);
+    if (!res.headersSent) { // Проверка, чтобы не отправить ответ дважды
+      return res.status(500).json({ error: "Ошибка сервера" });
+    }
+  }
+});
+
+//////26.01.2026
+
+
 
 /*
 router.get("/getProductByBarcode", (req,res) => {

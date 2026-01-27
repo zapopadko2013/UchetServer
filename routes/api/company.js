@@ -125,6 +125,9 @@ router.get('/', (req, res) => {
 			,avtoupdatestocktime: user.avtoupdatestocktime
 			,avtoupdatestockflag:  user.avtoupdatestockflag
 			//////23.01.2026
+			////26.01.2026
+            ,flagnkt: user.flagnkt 
+			////26.01.2026
 		};
 		// console.log(user);
 		res.status(200).json(userResp);
@@ -135,6 +138,42 @@ router.get('/', (req, res) => {
 	
 	// 20231107 AB return company info from JWT >
 });
+
+
+////26.01.2026
+
+router.post('/flagnktchange', (req, res) => {
+
+
+/////
+
+
+	knex.raw(
+		`UPDATE public.companies
+		SET  flagnkt = '${req.body.flagnkt}'
+		WHERE id =${req.userData.company}`
+	)
+	.then(result => {
+		
+		return res.status(200).json({
+			success: true,
+			result: result,
+		  });
+
+	})
+	.catch((err) => {
+		return res.status(500).json({
+		  error: err.message,
+		});
+	  });
+
+
+//////
+
+
+});
+////26.01.2026
+
 
 //////31.08.2023
 router.post('/managebin', (req, res) => {
