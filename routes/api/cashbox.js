@@ -16,6 +16,11 @@ router.get("/", (req, res) => {
     .select(
       "cashboxes.id",
       "cashboxes.name",
+
+      ///29.01.2026
+      "cashboxes.kaspiip",      
+      ///29.01.2026
+
       "points.name as point_name",
       "points.id as point"
     )
@@ -81,7 +86,11 @@ router.get("/inactive", (req, res) => {
       "cashboxes.id",
       "cashboxes.name",
       "points.name as point_name",
+      ///29.01.2026
+      "cashboxes.kaspiip",      
+      ///29.01.2026
       "points.id as point"
+      
     )
     .where({ "points.company": req.userData.company, "cashboxes.deleted": "t" })
     .then((cashboxes) => {

@@ -739,7 +739,13 @@ router.get("/api/cashboxes", (req, res) => {
   knex("cashboxes")
     .innerJoin("points", "points.id", "cashboxes.point")
     .where({ "points.id": req.query.pointid, "cashboxes.deleted": false })
-    .select("cashboxes.id", "cashboxes.name", "points.address")
+    .select("cashboxes.id", "cashboxes.name", "points.address"
+     
+      ///29.01.2026
+      ,"cashboxes.kaspiip"      
+      ///29.01.2026
+
+    )
     .then((cashboxes) => {
       cashboxes.forEach((cashbox) => {
         cashbox.name = helpers.decrypt(cashbox.name);
