@@ -187,6 +187,33 @@ router.get("/get_categories", (req, res) => {
   });
 });
 
+//////30.01.2026
+
+
+
+router.get("/getcategories1", (req, res) => {
+
+  const company = req.userData.company;
+  console.log(company);
+  const parentid = req.query.parentid ? req.query.parentid : -1;  
+  
+  knex.raw(`select id,name,deleted,parentid from categories
+    where (company = ${company} or id<=2)
+      --and id <> 0
+      and (parentid = ${parentid} or (${parentid} = -1 and parentid = 0))      
+  `).then((categories) => {
+      return res.status(200).json(categories.rows);
+    })
+    .catch((err) => {
+      return res.status(500).json(err);
+    });
+
+  
+});
+
+//////30.01.2026
+
+
 const get_children_cat_bonusrate = (array,parentid) =>{
   let res = [];
   let childs;
