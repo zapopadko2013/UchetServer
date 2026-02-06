@@ -16,7 +16,7 @@ router.get('/', (req, res) => {
 			knex.raw(`array(select json_build_object(to_char(t.date,'MM-YYYY'),sum(t.price)::text)   
 						from cashboxes c
 							left join transactions t on (c.id = t.cashbox and t.company = points.company) 
-							where t.date between DATE_TRUNC('month',current_date - interval '13 month') and current_date
+							where t.date between DATE_TRUNC('month',current_date - interval '13 month') and current_date+1
 								and c.point = points.id 
 									group by c.point, to_char(t.date,'MM-YYYY') order by to_date(to_char(t.date,'MM-YYYY'),'MM-YYYY')) as trans`),
 									//order by to_char(t.date,'MM-YYYY')) as trans`),
@@ -45,7 +45,7 @@ router.get('/avgticket', (req, res) => {
 			knex.raw(`array(select json_build_object(to_char(t.date,'DD.MM'),sum(t.price)::text,'count',count(t.price)::text)   
 						from cashboxes c
 							left join transactions t on (c.id = t.cashbox and t.company = points.company) 
-							where t.date between current_date - interval '11 month' and current_date
+							where t.date between current_date - interval '11 month' and current_date+1
 								and c.point = points.id 
 									group by c.point, to_char(t.date,'DD.MM') order by to_date(to_char(t.date,'DD.MM'),'DD.MM')) as trans`),
 			knex.raw(`array(select to_char(generate_series(current_date - interval '11 month', current_date - 1, '1 day'::interval)::date,'DD.MM')) as mlist`))
@@ -69,7 +69,7 @@ router.get('/countticket', (req, res) => {
 			knex.raw(`array(select json_build_object(to_char(t.date,'DD.MM'),count(t.price)::text)   
 						from cashboxes c
 							left join transactions t on (c.id = t.cashbox and t.company = points.company) 
-							where t.date between current_date - interval '11 month' and current_date
+							where t.date between current_date - interval '11 month' and current_date+1
 								and c.point = points.id 
 									group by c.point, to_char(t.date,'DD.MM') order by to_date(to_char(t.date,'DD.MM'),'DD.MM')) as trans`),
 			knex.raw(`array(select to_char(generate_series(current_date - interval '11 month', current_date - 1, '1 day'::interval)::date,'DD.MM')) as mlist`))
@@ -113,7 +113,7 @@ router.get('/avgsumweek', (req, res) => {
 			knex.raw(`array(select json_build_object(to_char(t.date,'MM-YYYY'),sum(t.price)::text)   
 						from cashboxes c
 							left join transactions t on (c.id = t.cashbox and t.company = points.company) 
-							where t.date between DATE_TRUNC('month',current_date - interval '13 month') and current_date 
+							where t.date between DATE_TRUNC('month',current_date - interval '13 month') and current_date+1 
 								and c.point = points.id 
 									group by c.point, to_char(t.date,'MM-YYYY') order by to_date(to_char(t.date,'MM-YYYY'),'MM-YYYY')) as trans`),
 									//order by to_char(t.date,'MM-YYYY')) as trans`),
@@ -139,7 +139,7 @@ router.get('/avgticketmonth', (req, res) => {
 			knex.raw(`array(select json_build_object(to_char(t.date,'MM-YYYY'),avg(t.price)::text)   
 						from cashboxes c
 							left join transactions t on (c.id = t.cashbox and t.company = points.company) 
-							where t.date between current_date - interval '13 month' and current_date
+							where t.date between current_date - interval '13 month' and current_date+1
 								and c.point = points.id 
 									group by c.point, to_char(t.date,'MM-YYYY') order by to_date(to_char(t.date,'MM-YYYY'),'MM-YYYY')) as trans`),
 			knex.raw(`array(select to_char(generate_series(current_date - interval '13 month' - interval '1 day', current_date - interval '1 day', '1 month'::interval)::date,'MM-YYYY')) as mlist`))
@@ -163,7 +163,7 @@ router.get('/countticketmonth', (req, res) => {
 			knex.raw(`array(select json_build_object(to_char(t.date,'MM-YYYY'),count(t.price)::text)   
 						from cashboxes c
 							left join transactions t on (c.id = t.cashbox and t.company = points.company) 
-							where t.date between current_date - interval '13 month' and current_date
+							where t.date between current_date - interval '13 month' and current_date+1
 								and c.point = points.id 
 									group by c.point, to_char(t.date,'MM-YYYY') order by to_date(to_char(t.date,'MM-YYYY'),'MM-YYYY')) as trans`),
 			knex.raw(`array(select to_char(generate_series(current_date - interval '13 month' - interval '1 day', current_date - interval '1 day', '1 month'::interval)::date,'MM-YYYY')) as mlist`))
@@ -214,7 +214,7 @@ router.get('/weeks', (req, res) => {
 	array(select json_build_object(to_char(t.date,'IYYY-IW'),sum(t.price)::text)
 						from cashboxes c
 							left join transactions t on (c.id = t.cashbox and t.company = po.company) 
-							where t.date between current_date - 91 and current_date
+							where t.date between current_date - 91 and current_date+1
 								and c.point = po.id 
 									group by c.point, to_char(t.date,'IYYY-IW') order by to_date(to_char(t.date,'IYYY-IW'),'IYYY-IW')) as trans,
 									
@@ -244,7 +244,7 @@ router.get('/avgsumweek/weeks', (req, res) => {
 	array(select json_build_object(to_char(t.date,'IYYY-IW'),sum(t.price)::text)
 						from cashboxes c
 							left join transactions t on (c.id = t.cashbox and t.company = po.company) 
-							where t.date between current_date - interval '91 day' and current_date
+							where t.date between current_date - interval '91 day' and current_date+1
 								and c.point = po.id 
 									group by c.point, to_char(t.date,'IYYY-IW') order by to_date(to_char(t.date,'IYYY-IW'),'IYYY-IW')) as trans,
  coalesce(s.monthly,0) as plan,
@@ -274,7 +274,7 @@ router.get('/avgticketmonth/weeks', (req, res) => {
 array(select json_build_object(to_char(t.date,'IYYY-IW'),sum(t.price)::text)
 						from cashboxes c
 							left join transactions t on (c.id = t.cashbox and t.company = po.company) 
-							where t.date between current_date - interval '91 day' and current_date
+							where t.date between current_date - interval '91 day' and current_date+1
 								and c.point = po.id 
 									group by c.point, to_char(t.date,'IYYY-IW') order by to_date(to_char(t.date,'IYYY-IW'),'IYYY-IW')) as trans,
 array(select to_char(generate_series(current_date - interval '91 day', current_date, '7 day'::interval)::date,'IYYY-IW')) as mlist
@@ -306,7 +306,7 @@ router.get('/countticketmonth/weeks', (req, res) => {
 array(select json_build_object(to_char(t.date,'IYYY-IW'),count(t.price)::text)
 						from cashboxes c
 							left join transactions t on (c.id = t.cashbox and t.company = po.company) 
-							where t.date between current_date - interval '13 week' and current_date
+							where t.date between current_date - interval '13 week' and current_date+1
 								and c.point = po.id 
 									group by c.point, to_char(t.date,'IYYY-IW') order by to_date(to_char(t.date,'IYYY-IW'),'IYYY-IW')) as trans,
 array(select to_char(generate_series(current_date - interval '13 week', current_date, '7 day'::interval)::date,'IYYY-IW')) as mlist
@@ -335,7 +335,7 @@ router.get('/days', (req, res) => {
 	array(select json_build_object(to_char(t.date,'DD.MM'),sum(t.price)::text)
 						from cashboxes c
 							left join transactions t on (c.id = t.cashbox and t.company = po.company) 
-							where t.date between current_date - interval '14 day' and current_date
+							where t.date between current_date - interval '14 day' and current_date+1
 								and c.point = po.id 
 									group by c.point, to_char(t.date,'DD.MM') order by to_date(to_char(t.date,'DD.MM'),'DD.MM')) as trans,
 									
