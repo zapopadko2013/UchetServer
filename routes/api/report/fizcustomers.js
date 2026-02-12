@@ -345,60 +345,148 @@ router.post('/writeoff_debt', async (req, res) => {
 //      });
 // });
 
-// router.get('/debt_book',(req,res) => {
-//      const date = req.query.date ? moment(req.query.date):'';
-//      const company = req.query.company ? req.query.company:req.userData.company; 
-//      console.log("date = "+date);
-//      if (date===''){
-//           knex.raw(`
-//                select name,telephone,
-//                     case when debt is null then 0 else debt end,
-//                     case when credit is null then 0 else credit end,
-//                     case when debit is null then 0 else debit end
-//                from (
-//                     SELECT f.lastname||' '||f.firstname as name, f.telephone, f.debt,
-//                          sum((select sum(debt) from "debtorsdiary" where company = d.company and customer = d.customer and date = d.date and type = 1)) as credit,
-//                          sum((select sum(debt) from "debtorsdiary" where company = d.company and customer = d.customer and date = d.date and type = -1))as debit
-//                     FROM "debtorsdiary" d, fiz_customers f 
-//                     where d.company = ${company}
-//                          and d.customer = f."id"
-//                     GROUP BY name, f.telephone, f.debt
-//                     ORDER BY name
-//                ) t
-//           `)
-//           .then(result =>{
-//                return res.status(200).json(result.rows);
-//           }).catch((err) => {
-//                helpers.serverLog(req.originalUrl, err.stack, 'error');
-//                return res.status(500).json(err);
-//           });
-//      }else{
-//           knex.raw(`
-//                select name,telephone,
-//                     case when debt is null then 0 else debt end,
-//                     case when credit is null then 0 else credit end,
-//                     case when debit is null then 0 else debit end
-//                from (
-//                     SELECT f.lastname||' '||f.firstname as name, f.telephone, f.debt,
-//                          sum((select sum(debt) from "debtorsdiary" where company = d.company and customer = d.customer and date = d.date and type = 1)) as credit,
-//                          sum((select sum(debt) from "debtorsdiary" where company = d.company and customer = d.customer and date = d.date and type = -1))as debit
-//                     FROM "debtorsdiary" d, fiz_customers f 
-//                     where d.company = ${company}
-//                          and d."date"::date = to_date('${date.format('L')}','dd.mm.yyyy')
-//                          and d.customer = f."id"
-//                     GROUP BY name, f.telephone, f.debt
-//                     ORDER BY name
-//                ) t
-//           `)
-//           .then(result =>{
-//                return res.status(200).json(result.rows);
-//           }).catch((err) => {
-//                helpers.serverLog(req.originalUrl, err.stack, 'error');
-//                return res.status(500).json(err);
-//           });
-//      }
+router.get('/debt_book',(req,res) => {
+     const date = req.query.date ? moment(req.query.date):'';
+     const company = req.query.company ? req.query.company:req.userData.company; 
      
-// });
+    const clientType = req.query.clientType; // Получаем параметр clientType (0, 1 или undefined)
+
+    // Условие по дате
+    const dateCondition = date !== '' 
+        ? `and d."date"::date = to_date('${date.format('DD.MM.YYYY')}', 'dd.mm.yyyy')` 
+        : '';
+
+    // Условие по типу клиента (если передан)
+    let clientTypeCondition = '';
+    if (clientType === '0' || clientType === '1') {
+        clientTypeCondition = `and d.customertype = ${clientType}`;
+    }
+
+    knex.raw(`
+        select 
+            name,
+            telephone,
+            case when debt is null then 0 else debt end as debt,
+            case when credit is null then 0 else credit end as credit,
+            case when debit is null then 0 else debit end as debit,
+            id,
+            customertype
+        from (
+            SELECT 
+                CASE 
+                    WHEN d.customertype = 0 THEN f.lastname || ' ' || f.firstname 
+                    ELSE c.name 
+                END as name,
+                
+                CASE 
+                    WHEN d.customertype = 0 THEN f.telephone 
+                    ELSE c.bin 
+                END as telephone,
+
+                CASE 
+                    WHEN d.customertype = 0 THEN f.debt 
+                    ELSE c.debt 
+                END as debt,
+
+                SUM(CASE WHEN d.type = 1 THEN d.debt ELSE 0 END) as credit,
+                SUM(CASE WHEN d.type = -1 THEN d.debt ELSE 0 END) as debit,
+                
+                d.customer as id,
+                d.customertype
+            FROM "debtorsdiary" d
+            LEFT JOIN fiz_customers f ON d.customer = f.id AND d.customertype = 0
+            LEFT JOIN customers c ON d.customer = c.id AND d.customertype = 1
+            
+            WHERE d.company = ${company}
+            ${dateCondition}
+            ${clientTypeCondition} -- Добавляем фильтр по типу
+            
+            GROUP BY 
+                d.customer, 
+                d.customertype,
+                f.lastname, f.firstname, f.telephone, f.debt,
+                c.name, c.bin, c.debt
+            ORDER BY name
+        ) t
+    `)
+    .then(result => {
+        return res.status(200).json(result.rows);
+    })
+    .catch((err) => {
+        helpers.serverLog(req.originalUrl, err.stack, 'error');
+        return res.status(500).json(err);
+    });
+     
+     /* console.log("date = "+date);
+     if (date===''){
+          knex.raw(`
+               select name,telephone,
+                    case when debt is null then 0 else debt end,
+                    case when credit is null then 0 else credit end,
+                    case when debit is null then 0 else debit end
+                    ----09.02.2026
+                    ,id 
+                    ----09.02.2026
+               from (
+                    SELECT f.lastname||' '||f.firstname as name, f.telephone, f.debt,
+                         sum((select sum(debt) from "debtorsdiary" where company = d.company and customer = d.customer and date = d.date and type = 1)) as credit,
+                         sum((select sum(debt) from "debtorsdiary" where company = d.company and customer = d.customer and date = d.date and type = -1))as debit
+                          ----09.02.2026
+                    ,f.id 
+                    ----09.02.2026
+                    FROM "debtorsdiary" d, fiz_customers f 
+                    where d.company = ${company}
+                         and d.customer = f."id"
+                    GROUP BY name, f.telephone, f.debt
+                     ----09.02.2026
+                    ,f.id 
+                    ----09.02.2026
+                    ORDER BY name
+               ) t
+          `)
+          .then(result =>{
+               return res.status(200).json(result.rows);
+          }).catch((err) => {
+               helpers.serverLog(req.originalUrl, err.stack, 'error');
+               return res.status(500).json(err);
+          });
+     }else{
+          knex.raw(`
+               select name,telephone,
+                    case when debt is null then 0 else debt end,
+                    case when credit is null then 0 else credit end,
+                    case when debit is null then 0 else debit end
+                    
+                    ----09.02.2026
+                    ,id 
+                    ----09.02.2026
+               from (
+                    SELECT f.lastname||' '||f.firstname as name, f.telephone, f.debt,
+                         sum((select sum(debt) from "debtorsdiary" where company = d.company and customer = d.customer and date = d.date and type = 1)) as credit,
+                         sum((select sum(debt) from "debtorsdiary" where company = d.company and customer = d.customer and date = d.date and type = -1))as debit
+                          ----09.02.2026
+                    ,f.id 
+                    ----09.02.2026
+                    FROM "debtorsdiary" d, fiz_customers f 
+                    where d.company = ${company}
+                         and d."date"::date = to_date('${date.format('L')}','dd.mm.yyyy')
+                         and d.customer = f."id"
+                    GROUP BY name, f.telephone, f.debt
+                     ----09.02.2026
+                    ,f.id 
+                    ----09.02.2026
+                    ORDER BY name
+               ) t
+          `)
+          .then(result =>{
+               return res.status(200).json(result.rows);
+          }).catch((err) => {
+               helpers.serverLog(req.originalUrl, err.stack, 'error');
+               return res.status(500).json(err);
+          });
+     } */
+     
+});
 
 // router.get('/transactions', (req, res) => {
 //      const customer = req.query.customer
