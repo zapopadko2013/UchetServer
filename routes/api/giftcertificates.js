@@ -25,6 +25,10 @@ router.get("/", (req, res) => {
 			.select(
 				"g.id",
 				"g.code",
+				//////17.02.2026
+				"g.product",
+				"g.balance",
+				//////17.02.2026
 				"g.denomination",
 				knex.raw(`to_char(g.expiredate,'DD.MM.YYYY') as expiredate`),
 				knex.raw(`t.name as type`),
