@@ -43,7 +43,7 @@ WHERE
 		// +
 		// `AND d.transactionid IN ( SELECT T.ID FROM transactions T WHERE T.company = ${company})` 
 		// + 
-		`AND d."date" BETWEEN to_timestamp( '${dateFrom} 00:00:00', 'dd.mm.yyyy HH24:MI:SS' ) 
+		` AND d."date" BETWEEN to_timestamp( '${dateFrom} 00:00:00', 'dd.mm.yyyy HH24:MI:SS' ) 
 		AND to_timestamp( '${dateTo} 23:59:59', 'dd.mm.yyyy HH24:MI:SS' )  
 		AND d.reason = 2
 	) 
