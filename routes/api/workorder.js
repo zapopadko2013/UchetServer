@@ -45,6 +45,118 @@ WHERE
         .catch((err) => { return res.status(500).json(err) })
 });
 
+/////19.02.2026
+
+router.post('/sendwhatsappcancel', async (req, res) => {
+
+     const { workorderId } = req.body;
+    const companyId = req.userData.company;
+
+
+    
+   
+    const ID_INSTANCE = process.env.GREEN_API_ID_INSTANCE;
+    const API_TOKEN = process.env.GREEN_API_TOKEN;
+
+    try {
+        // 1. Получаем товары и телефоны поставщиков
+        const result = await knex.raw(
+            `   SELECT 
+                p.name,              
+                wd.units, 
+                wd.purchaseprice,
+                c.sendwhatsapp,
+                c1.name as companyname,
+                c1.address,
+                w.workorder_number
+            FROM workorder_details wd
+            JOIN workorder w ON wd.workorder_id = w.id
+            JOIN counterparties c ON wd.counterparty = c.id
+            JOIN products p ON wd.product = p.id 
+            JOIN companies c1 ON w.company =c1.id 
+            WHERE w.id = ? AND w.company = ?`,
+             [workorderId, companyId]);
+
+        const details = result.rows;
+
+        if (details.length === 0) {
+            return res.status(400).json({ text: "Нет данных для отправки" });
+        }
+
+        // 2. Группируем товары по номеру телефона
+        const groups = details.reduce((acc, item) => {
+            if (item.sendwhatsapp) {
+                if (!acc[item.sendwhatsapp]) acc[item.sendwhatsapp] = [];
+                acc[item.sendwhatsapp].push(item);
+            }
+            return acc;
+        }, {});
+
+        // 3. Рассылка через Green-API
+        //  const sendPromises = Object.keys(groups).map(async (phone) => {
+        //     const itemsText = groups[phone]
+        //         .map(i => `${i.name} (${i.units} шт., Цена - ${i.purchaseprice})`)
+        //         .join(', '); 
+
+                const sendPromises = Object.keys(groups).map(async (phone) => {
+    // Заголовок сообщения
+    let message = `*ОТМЕНИТЬ ЗАКАЗ №${details[0].workorder_number}*\n`;
+    message += `_Компания: ${ helpers.decrypt(details[0].companyname)} (${ helpers.decrypt(details[0].address)})_\n\n`;
+    message += `_Дата: ${new Date().toLocaleDateString()}_\n\n`;
+    
+    // Шапка "таблицы"
+    message += "```" + "------------------------------\n";
+    message += "Товар          |Кол |Цена \n";
+    message += "------------------------------\n";
+
+    let totalSum = 0;
+
+    groups[phone].forEach(i => {
+        // Обрезаем название до 14 символов для ровности колонок
+        const name = i.name.substring(0, 14).padEnd(15, ' ');
+        const qty = i.units.toString().padEnd(4, ' ');
+        const price = (i.purchaseprice || 0).toString().padEnd(6, ' ');
+        
+        message += `${name}|${qty}|${price}\n`;
+        totalSum += (i.units * (i.purchaseprice || 0));
+    });
+
+    message += "------------------------------\n";
+    message += `ИТОГО: ${totalSum.toLocaleString()} \n`;
+    message += "------------------------------" + "```\n\n";
+    
+    //message += "Просьба подтвердить получение заказа.";
+            
+       //     const message = `Заказ №${details[0].workorder_number}. Товары: ${itemsText}`;
+            
+            // Формируем корректный chatId для Green-API (номер@c.us)
+            const chatId = `${phone.replace(/\D/g, '')}@c.us`;
+
+            return fetch(`https://api.green-api.com/waInstance${ID_INSTANCE}/sendMessage/${API_TOKEN}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ chatId, message })
+            });
+        });
+
+        await Promise.all(sendPromises);
+
+        // 4. Обновляем статус заказа в БД
+        /* await knex('workorder')
+            .where({ id: workorderId, company: companyId })
+            .update({ status: 'inprocess' }); */
+
+        return res.status(200).json({ success: true });
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Ошибка сервера при отправке" });
+    } 
+
+});
+
+/////19.02.2026
+
 /////06.01.2026
 
 router.post('/send-whatsapp', async (req, res) => {
