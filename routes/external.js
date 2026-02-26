@@ -6,6 +6,304 @@ const moment = require("moment");
 const fetch = require("node-fetch");
 const verifyExternalToken = require("../middlewares/verifyExternalToken");
 const customer = require('./api/customer'); 
+const { v4: uuidv4 } = require('uuid');
+const db = require("../db/knex");
+
+//////25.02.2026
+
+const BASE_URL = process.env.URLRECASSA; 
+const API_KEY = process.env.KEYRECASSA; 
+
+
+/**
+ * Авторизация в reKassa
+ */
+
+
+
+async function getAuthToken(number, password) {
+  try {
+    //console.log(`${BASE_URL}/api/auth/login?apiKey=${API_KEY}&format=json`);
+    const res = await fetch(`${BASE_URL}/api/auth/login?apiKey=${API_KEY}&format=json`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ number, password })
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      console.error(`Ошибка авторизации: ${res.status}`, errorData);
+      return null;
+    }
+
+    const data = await res.json(); 
+    // Возвращаем весь объект целиком. 
+    // Обычно там { token: "...", expiresAt: "...", ... }
+    return data; 
+  } catch (e) {
+    console.error('Критическая ошибка функции getAuthToken:', e);
+    return null;
+  }
+}
+
+/**
+ * Функция для закрытия смены (Z-отчет)
+ */
+async function closeCashboxShift(targetId, shiftNumber, token) {
+  try {
+    console.log(`⚠️ Касса ${targetId}: Закрытие смены №${shiftNumber}...`);
+    
+    const response = await fetch(`${BASE_URL}/api/crs/${targetId}/shifts/${shiftNumber}/close`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'X-Request-ID': uuidv4(),
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (response.ok) {
+      console.log(`✅ Смена №${shiftNumber} успешно закрыта.`);
+      return true;
+    } else {
+      const errData = await response.json().catch(() => ({}));
+      console.error(`❌ Ошибка закрытия смены №${shiftNumber}:`, errData.message || response.status);
+      return false;
+    }
+  } catch (e) {
+    console.error(`❌ Системная ошибка при закрытии смены:`, e.message);
+    return false;
+  }
+}
+
+/**
+ * Универсальная функция обработки одного чека
+ */
+async function processFiscalRow(row) {
+    try {
+        console.log(`\n[БД ID: ${row.id}] Ручная обработка...`);
+        //console.log(`\n[БД : ${row.id_cassa},${row.pass}] Ручная обработка...`);
+
+        // 1. Авторизация
+        const authData = await getAuthToken(row.id_cassa, row.pass);
+        if (!authData || !authData.token) {
+            throw new Error(`Ошибка авторизации для кассы ${row.id_cassa}`);
+        }
+
+        const targetId = authData.id;
+        const token = authData.token;
+
+        // 2. Проверка смены
+        const statusRes = await fetch(`${BASE_URL}/api/crs/${targetId}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (statusRes.ok) {
+          const data = await statusRes.json();
+          if (data.shiftOpen && data.shiftExpired && data.shiftNumber > 0) {
+            const closed = await closeCashboxShift(targetId, data.shiftNumber, token);
+            if (closed) await new Promise(r => setTimeout(r, 2500));
+          }
+        }
+
+        // 3. Отправка чека
+        const ticketResponse = await fetch(`${BASE_URL}/api/crs/${targetId}/tickets`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                'X-Request-ID': uuidv4()
+            },
+            body: JSON.stringify(row.req)
+        });
+
+        const responseData = await ticketResponse.json();
+
+        if (ticketResponse.ok) {
+            await db('transactions').where('id', row.id).update({
+                tisstatus: true,
+                ofdurl: responseData.qrCode,
+                ofdnumber: responseData.ticketNumber,
+                tis_error_count: 0,
+                tiserror: null
+            });
+            return { id: row.id, success: true, responseData: responseData };
+        } else {
+            const errorMsg = responseData.message || JSON.stringify(responseData);
+            await db('transactions').where('id', row.id).update({
+                tis_error_count: db.raw('COALESCE(tis_error_count, 0) + 1'),
+                tiserror: errorMsg.substring(0, 500)
+            });
+            throw new Error(errorMsg);
+        }
+    } catch (e) {
+        console.error(`Ошибка [ID ${row.id}]:`, e.message);
+        return { id: row.id, success: false, error: e.message };
+    }
+}
+
+/**
+ * МАРШРУТ ДЛЯ REACT
+ * POST /api/fiscalize-manual
+ * Тело запроса: [{"id": 187}, {"id": 188}]
+ */
+
+
+router.post('/fiscalizemanual', async (req, res) => {
+    const idsToProcess = req.body; // Ожидаем массив [{"id": 187}]
+    
+    if (!Array.isArray(idsToProcess) || idsToProcess.length === 0) {
+        return res.status(400).json({ error: "Передайте массив ID" });
+    }
+
+    // Извлекаем просто числа из массива объектов
+    const ids = idsToProcess.map(item => item.id);
+
+    try {
+        // Выполняем тот же SQL запрос, но фильтруем по конкретным ID
+        // Убираем условие про 2 часа, так как это ручной запуск
+        const MANUAL_QUERY = `
+
+
+            SELECT 
+    id,
+    id_cassa,
+    id_section as pass, 
+    json_build_object(
+        'operation', (case when tickettype = 1 then 'OPERATION_SELL_RETURN' else 'OPERATION_SELL' end),
+        'dateTime', json_build_object(
+            'date', json_build_object(
+                'year', extract(year from trans_date)::text,
+                'month', extract(month from trans_date)::text,
+                'day', extract(day from trans_date)::text
+            ),
+            'time', json_build_object(
+                'hour', extract(hour from trans_date)::text,
+                'minute', extract(minute from trans_date)::text,
+                'second', extract(second from trans_date)::text
+            )
+        ),
+        'domain', json_build_object('type', 'DOMAIN_SERVICES'),
+        'items', items_json,
+        'payments', payments_json,
+        'amounts', (
+            jsonb_build_object(
+                'total', jsonb_build_object('bills', (trunc(abs(price)))::text, 'coins', round((abs(price) - trunc(abs(price))) * 100)),
+                'taken', 
+                --jsonb_build_object('bills', (trunc(abs(price)))::text,'coins', round((abs(price) - trunc(abs(price))) * 100)),
+                (case when tickettype = 1 
+                            then jsonb_build_object('bills', '0', 'coins', 0)
+                            else jsonb_build_object('bills', (trunc(abs(price)))::text, 'coins', round((abs(price) - trunc(abs(price))) * 100))
+                          end),
+                'change', jsonb_build_object('bills', '0', 'coins', 0)
+            ) || 
+            (case when total_discount > 0 then 
+                jsonb_build_object('discount', jsonb_build_object(
+                    'name', 'Скидка',
+                    'sum', jsonb_build_object('bills', (trunc(total_discount))::text, 'coins', round((total_discount - trunc(total_discount)) * 100))
+                ))
+            else '{}'::jsonb end) ||
+            (case when total_markup > 0 then 
+                jsonb_build_object('markup', jsonb_build_object(
+                    'name', 'Наценка',
+                    'sum', jsonb_build_object('bills', (trunc(total_markup))::text, 'coins', round((total_markup - trunc(total_markup)) * 100))
+                ))
+            else '{}'::jsonb end)
+        )
+    ) as req
+FROM (
+    SELECT 
+        t.id,
+        t.price,
+        po.id_cassa,
+        po.tistoken2,
+        t.date as trans_date,
+        po.id_section,
+        t.tickettype,
+        coalesce(t.discount, 0) + coalesce(t.bonuspay, 0) as total_discount,
+        coalesce(t.markup, 0) as total_markup,
+        (SELECT json_agg(
+            json_build_object(
+                'type', 'ITEM_TYPE_COMMODITY',
+                'commodity', json_build_object(
+                    'name', p.name,
+                    'sectionCode', '1',
+                    'quantity', round(abs(td.units) * 1000),
+                    'price', json_build_object(
+                        'bills', (trunc(abs(td.price)))::text, 
+                        'coins', round((abs(td.price) - trunc(abs(td.price))) * 100)
+                    ),
+                    'sum', json_build_object(
+                    	'bills', (trunc(abs(td.totalprice ) / 1))::text,
+                        'coins', round((abs(td.totalprice ) - trunc(abs(td.totalprice ))) * 100)
+                  
+                        --'bills', (trunc(abs(td.totalprice - coalesce(td.discount,0) + coalesce(td.markup,0)) / 1))::text,
+                        --'coins', round((abs(td.totalprice - coalesce(td.discount,0) + coalesce(td.markup,0)) - trunc(abs(td.totalprice - coalesce(td.discount,0) + coalesce(td.markup,0)))) * 100)
+                    ),
+                    --'auxiliary', json_build_array(json_build_object('key', 'UNIT_TYPE', 'value', 'PIECE'))
+                    'auxiliary', jsonb_build_array(
+    jsonb_build_object(
+        'key', 'UNIT_TYPE', 
+        'value', (case when p.category = -1 then 'KILOGRAM' else 'PIECE' end)
+    )
+)
+                    )
+            )
+        ) FROM public.transaction_details td 
+          JOIN public.products p ON td.product = p.id 
+          JOIN public.unit_spr us ON p.unitsprid = us.id
+          WHERE td.transactionid = t.id
+        ) as items_json,
+        (SELECT json_agg(json_build_object(
+            'type', p_type,
+            'sum', json_build_object('bills', (trunc(abs(p_sum)))::text, 'coins', round((abs(p_sum) - trunc(abs(p_sum))) * 100))
+        )) FROM (
+            SELECT 
+                case when (t.paymenttype = 'cash') then 'PAYMENT_CASH' else 'PAYMENT_CARD' end as p_type,
+                t.price as p_sum
+            WHERE t.price <> 0
+        ) p_sub) as payments_json
+    FROM public.transactions t
+    JOIN public.cashboxes po ON t.cashbox = po.id
+    WHERE t.tisstatus = false 
+      AND po.tisintegration = true
+      AND (t.ofdurl IS NULL OR trim(t.ofdurl) = '')
+      AND (t.tis_error_count IS NULL OR t.tis_error_count < 3)
+      AND t.paymenttype <> '0'
+      and po.id_cassa is not null  and trim(po.id_cassa)<>'' 
+and po.id_section is not null  and trim(po.id_section)<>'' 
+
+  and t.id IN (${ids.join(',')})
+order by t.id
+    LIMIT 400
+) main_query
+
+            
+        `;
+        
+        // Примечание: Чтобы не дублировать огромный SQL, 
+        // вынесите текст самого SELECT в переменную FISCAL_QUERY_BASE
+        
+        const result = await db.raw(MANUAL_QUERY);
+        const rows = result.rows;
+
+        const results = [];
+        for (const row of rows) {
+            const status = await processFiscalRow(row);
+            results.push(status);
+        }
+
+        res.json({
+            message: "Обработка завершена",
+            details: results
+        });
+
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+//////25.02.2026
 
 router.post("/api/savepoint", (req, res) => {
   //20231216 AB check accessToken before issuing new integration pass to cashbox <
